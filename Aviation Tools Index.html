@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviation Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05100d;--bg2:#070f0b;--panel:#0d1a15;--edge:#1a3028;--edge2:#122218;
+    --text:#e6f5ee;--muted:#7fa090;--faint:#4a6b5a;
+    --green:#34d399;--green-d:#10b981;--teal:#22d3ee;--amber:#ffb340;--violet:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;font-family:'Saira',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+  body{
+    background:radial-gradient(900px 600px at 70% -5%,rgba(52,211,153,.08),transparent 60%),
+      radial-gradient(700px 500px at 10% 100%,rgba(34,211,238,.04),transparent 55%),
+      linear-gradient(160deg,var(--bg2),var(--bg) 60%);
+    background-attachment:fixed;min-height:100vh;padding:0 20px 60px;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(100,180,140,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(100,180,140,.018) 1px,transparent 1px);
+    background-size:52px 52px;mask-image:radial-gradient(1000px 700px at 50% 20%,#000 20%,transparent 85%)}
+
+  .wrap{max-width:960px;margin:0 auto;position:relative;z-index:1}
+
+  /* ---- HEADER ---- */
+  header{padding:56px 0 44px;text-align:center}
+  .logo-ring{width:64px;height:64px;border-radius:18px;background:linear-gradient(160deg,#0d3828,#071510);border:1px solid #1d6040;display:grid;place-items:center;margin:0 auto 22px;box-shadow:0 0 36px rgba(52,211,153,.15),inset 0 0 20px rgba(52,211,153,.1)}
+  .logo-ring svg{width:32px;height:32px;color:var(--green)}
+  h1{font-family:'Saira Condensed';font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+  h1 span{color:var(--green)}
+  .tagline{margin-top:12px;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .divider{width:48px;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);margin:24px auto 0;border-radius:2px}
+
+  /* ---- GRID ---- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:48px}
+
+  /* ---- TOOL CARD ---- */
+  .tool{
+    display:flex;flex-direction:column;text-decoration:none;
+    background:linear-gradient(160deg,var(--panel),var(--bg2));
+    border:1px solid var(--edge);border-radius:20px;
+    padding:28px 26px 24px;cursor:pointer;
+    transition:transform .2s cubic-bezier(.2,.8,.2,1), border-color .2s, box-shadow .2s;
+    position:relative;overflow:hidden;
+    animation:rise .55s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .tool:nth-child(1){animation-delay:.05s}
+  .tool:nth-child(2){animation-delay:.12s}
+  .tool:nth-child(3){animation-delay:.19s}
+  .tool:nth-child(4){animation-delay:.26s}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .tool::after{content:"";position:absolute;inset:0 0 auto 0;height:1px;opacity:.6;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  .tool:hover{transform:translateY(-4px);box-shadow:0 24px 48px -16px rgba(0,0,0,.7);}
+
+  /* accent colours per tool */
+  .tool.wb  {--accent:var(--green); } .tool.wb:hover{border-color:rgba(52,211,153,.45)}
+  .tool.da  {--accent:var(--teal);  } .tool.da:hover{border-color:rgba(34,211,238,.45)}
+  .tool.cr  {--accent:var(--violet);} .tool.cr:hover{border-color:rgba(167,139,250,.45)}
+  .tool.to  {--accent:var(--amber); } .tool.to:hover{border-color:rgba(255,179,64,.45)}
+
+  .tool-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:18px;flex:none;
+    background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 18%,var(--panel)),var(--panel));
+    border:1px solid color-mix(in srgb,var(--accent) 28%,transparent);
+    box-shadow:0 0 18px color-mix(in srgb,var(--accent) 10%,transparent)}
+  .tool-icon svg{width:22px;height:22px;color:var(--accent)}
+  .tool-name{font-family:'Saira Condensed';font-size:20px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text);line-height:1.1}
+  .tool-tag{display:inline-block;margin-top:7px;font-family:'Spline Sans Mono';font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);border-radius:6px;padding:3px 8px}
+  .tool-desc{margin-top:14px;font-size:13px;color:var(--muted);line-height:1.6;flex:1}
+  .tool-arrow{margin-top:20px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);opacity:.7;transition:opacity .15s, gap .15s}
+  .tool:hover .tool-arrow{opacity:1;gap:11px}
+  .tool-arrow svg{width:14px;height:14px}
+
+  /* ---- FOOTER ---- */
+  footer{margin-top:56px;text-align:center;font-size:11.5px;color:var(--faint);line-height:1.7;padding:0 20px}
+  footer b{color:var(--muted)}
+
+  @media(max-width:560px){.grid{grid-template-columns:1fr}header{padding:40px 0 32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <h1>Aviation <span>Tools</span></h1>
+    <p class="tagline">Electronic flight bag · Planning tools</p>
+    <div class="divider"></div>
+  </header>
+
+  <div class="grid">
+
+    <!-- Weight & Balance -->
+    <a class="tool wb" href="weight-balance-calculator.html">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7 2.5 14a3 3 0 0 0 5 0L5 7Z"/><path d="M19 7l-2.5 7a3 3 0 0 0 5 0L19 7Z"/><path d="M8 21h8"/>
+        </svg>
+      </div>
+      <div class="tool-name">Weight &amp; Balance</div>
+      <div class="tool-tag">W&amp;B · CG · Envelope</div>
+      <p class="tool-desc">Load your aircraft, check takeoff and landing weight, centre of gravity and CG envelope limits. Supports multiple aircraft profiles with a configurable safety margin.</p>
+      <div class="tool-arrow">Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </a>
+
+    <!-- Density Altitude -->
+    <a class="tool da" href="density-altitude-calculator.html">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 16H6a4 4 0 0 1 0-8h.5"/><path d="M16 16h2a4 4 0 0 0 0-8h-.5"/><path d="M12 4v2"/><path d="M12 18v2"/><path d="M9 12H4"/><path d="M20 12h-5"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <div class="tool-name">Density Altitude</div>
+      <div class="tool-tag">DA · Pressure Alt · ISA</div>
+      <p class="tool-desc">Calculate pressure altitude and density altitude from elevation, temperature and altimeter setting. Essential for performance planning on hot or high-altitude days.</p>
+      <div class="tool-arrow">Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </a>
+
+    <!-- Cruise Performance -->
+    <a class="tool cr" href="ypm-cruise-performance-calculator.html">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 17l4-8 4 4 4-6 4 10"/><circle cx="19" cy="17" r="1"/><circle cx="3" cy="17" r="1"/>
+        </svg>
+      </div>
+      <div class="tool-name">Cruise Performance</div>
+      <div class="tool-tag">KTAS · GPH · %BHP</div>
+      <p class="tool-desc">Plan cruise power settings, true airspeed, fuel burn and endurance at altitude. Interpolates directly from POH performance tables for accurate results.</p>
+      <div class="tool-arrow">Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </a>
+
+    <!-- Takeoff Distance -->
+    <a class="tool to" href="ypm-takeoff-distance-calculator.html">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 20h20"/><path d="M6 20V10l6-7 6 7v10"/><path d="M6 14h12"/>
+        </svg>
+      </div>
+      <div class="tool-name">Takeoff Distance</div>
+      <div class="tool-tag">Ground roll · 50ft · Wind</div>
+      <p class="tool-desc">Calculate short-field takeoff ground roll and distance to 50 ft screen height. Accounts for density altitude, wind, runway surface and slope corrections from the POH.</p>
+      <div class="tool-arrow">Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </a>
+
+  </div>
+
+  <footer>
+    <p><b>For planning and training only — not a substitute for the approved AFM/POH.</b></p>
+    <p>Always verify results against official documents. The pilot in command is solely responsible for ensuring the aircraft is loaded and operated within limits.</p>
+  </footer>
+</div>
+</body>
+</html>

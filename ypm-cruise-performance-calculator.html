@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VH-YPM · Cruise Performance — Cessna R172K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080711;--bg-2:#0c0a18;--panel:#15131f;--panel-2:#110f1b;--inset:#0c0a16;
+    --edge:#2c2740;--edge-soft:#1d1930;--text:#efe9fb;--muted:#9a8fb5;--faint:#6a5f86;
+    --prim:#a78bfa;--prim-d:#8b5cf6;--cyan:#38bdf8;--amber:#ffb340;
+    --green:#37d98a;--red:#ff5470;
+    --shadow:0 20px 46px -24px rgba(0,0,0,.95);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Saira',sans-serif;color:var(--text);
+    background:
+      radial-gradient(1100px 640px at 84% -10%, rgba(167,139,250,.08), transparent 60%),
+      radial-gradient(900px 600px at 6% 110%, rgba(56,189,248,.04), transparent 55%),
+      linear-gradient(180deg,var(--bg-2),var(--bg) 72%);
+    background-attachment:fixed;min-height:100%;padding:22px;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:linear-gradient(rgba(150,130,200,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(150,130,200,.022) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(1200px 820px at 50% 24%,#000 28%,transparent 92%)}
+  .app{max-width:1280px;margin:0 auto;position:relative;z-index:1}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 4px 18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:48px;height:48px;flex:none;border-radius:12px;background:linear-gradient(160deg,#241a44,#16121f);
+    border:1px solid #4b3b7a;display:grid;place-items:center;box-shadow:inset 0 0 18px rgba(167,139,250,.22)}
+  .logo svg{width:27px;height:27px}
+  .brand h1{font-family:'Saira Condensed';font-size:23px;font-weight:700;letter-spacing:.06em;line-height:1;text-transform:uppercase}
+  .brand h1 b{color:var(--prim)}
+  .brand p{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+  .tail{font-family:'Spline Sans Mono';font-size:12.5px;font-weight:600;letter-spacing:.1em;padding:9px 15px;border-radius:9px;
+    border:1px solid var(--edge);background:rgba(8,7,17,.7);display:flex;align-items:center;gap:9px;white-space:nowrap}
+  .tail .d{width:8px;height:8px;border-radius:2px;background:var(--prim);box-shadow:0 0 9px var(--prim)}
+  .tail b{color:var(--text);font-weight:700}
+
+  .layout{display:grid;gap:15px;grid-template-columns:344px minmax(0,1fr);
+    grid-template-areas:"inputs results" "inputs planning";align-items:start}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--edge);border-radius:16px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .card::after{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.45),transparent)}
+  .inputs{grid-area:inputs}.results{grid-area:results;animation-delay:.06s}.planning{grid-area:planning;animation-delay:.12s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .card-h{display:flex;align-items:center;gap:10px;padding:14px 17px;border-bottom:1px solid var(--edge-soft)}
+  .card-h .tag{font-family:'Saira Condensed';font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card-h .ix{font-family:'Spline Sans Mono';font-size:10.5px;color:var(--faint);margin-left:auto;letter-spacing:.1em}
+  .card-body{padding:15px 17px 18px}
+
+  .basis{display:flex;gap:9px;align-items:flex-start;font-size:11px;line-height:1.45;padding:9px 11px;border-radius:9px;margin-bottom:15px;
+    background:rgba(167,139,250,.08);border:1px solid color-mix(in srgb,var(--prim) 28%,transparent);color:#e6ddff}
+  .basis svg{width:14px;height:14px;flex:none;margin-top:1px;color:var(--prim)}
+  .basis b{color:#f1ebff;font-weight:600}
+
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+  .preset{font-family:'Saira';font-size:11px;letter-spacing:.04em;color:var(--muted);background:var(--inset);
+    border:1px solid var(--edge-soft);padding:7px 11px;border-radius:8px;cursor:pointer;transition:.16s;font-weight:500}
+  .preset:hover{color:var(--text);border-color:var(--edge);background:#19152a}
+  .preset:active{transform:translateY(1px)}
+
+  .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+  .field-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .field label{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .field .hint{font-size:10px;color:var(--faint);letter-spacing:.03em;font-family:'Spline Sans Mono'}
+  .control{display:flex;align-items:stretch;gap:7px}
+  .num{flex:1;display:flex;align-items:stretch;background:var(--inset);border:1px solid var(--edge);border-radius:10px;overflow:hidden;transition:.18s}
+  .num:focus-within{border-color:var(--prim);box-shadow:0 0 0 3px rgba(167,139,250,.16)}
+  .num.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,84,112,.14)}
+  .step{width:38px;flex:none;background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;font-family:'Spline Sans Mono';transition:.14s;display:grid;place-items:center}
+  .step:hover{color:var(--text);background:rgba(167,139,250,.1)}
+  .step:active{background:rgba(167,139,250,.2)}
+  .num input{flex:1;width:100%;min-width:0;background:transparent;border:none;outline:none;color:var(--text);
+    font-family:'Spline Sans Mono';font-weight:600;font-size:19px;text-align:center;padding:10px 2px;font-variant-numeric:tabular-nums}
+  .num input::-webkit-outer-spin-button,.num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .num input[type=number]{-moz-appearance:textfield}
+  .toggle{display:flex;flex:none;background:var(--inset);border:1px solid var(--edge);border-radius:10px;overflow:hidden}
+  .toggle button{font-family:'Saira';font-size:11.5px;font-weight:600;letter-spacing:.03em;color:var(--faint);background:transparent;border:none;cursor:pointer;padding:0 11px;min-width:46px;transition:.16s}
+  .toggle button.on{color:#160d2b;background:var(--prim);box-shadow:0 0 13px rgba(167,139,250,.4)}
+  .toggle button:not(.on):hover{color:var(--text)}
+
+  .subhdr{font-family:'Saira Condensed';font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:18px 0 9px;display:flex;align-items:center;gap:9px}
+  .subhdr::after{content:"";flex:1;height:1px;background:var(--edge-soft)}
+
+  /* RPM segmented */
+  .rpmseg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .rpmseg button{font-family:'Spline Sans Mono';font-size:14px;font-weight:600;color:var(--faint);background:var(--inset);
+    border:1px solid var(--edge);border-radius:9px;cursor:pointer;padding:11px 2px;transition:.15s;font-variant-numeric:tabular-nums}
+  .rpmseg button.on{color:#160d2b;background:var(--prim);border-color:var(--prim);box-shadow:0 0 14px rgba(167,139,250,.4)}
+  .rpmseg button:not(.on):hover{color:var(--text);background:#19152a}
+  .rpmseg .u{display:block;font-size:8px;letter-spacing:.1em;color:inherit;opacity:.6;font-family:'Saira';margin-top:1px}
+
+  /* results */
+  .res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--edge-soft);border-bottom:1px solid var(--edge-soft)}
+  .big-cell{padding:17px 14px 15px;text-align:center}
+  .big-cell .lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .big-cell .lab i{font-style:normal;color:var(--faint);font-family:'Spline Sans Mono';font-size:9px;display:block;margin-top:2px;letter-spacing:.04em}
+  .big-cell .big{font-family:'Spline Sans Mono';font-weight:700;line-height:.95;font-size:clamp(34px,5.6vw,50px);letter-spacing:-.01em;margin:9px 0 0;font-variant-numeric:tabular-nums;transition:color .3s}
+  .big-cell .big .u{font-size:.32em;color:var(--muted);letter-spacing:.04em;margin-left:4px;font-weight:600}
+  .big-cell.bhp .big{color:var(--prim)}.big-cell.ktas .big{color:var(--cyan)}.big-cell.gph .big{color:var(--amber)}
+  .big-cell.bhp{background:radial-gradient(320px 130px at 50% 0%,rgba(167,139,250,.07),transparent)}
+  .big-cell.ktas{background:radial-gradient(320px 130px at 50% 0%,rgba(56,189,248,.06),transparent)}
+  .big-cell.gph{background:radial-gradient(320px 130px at 50% 0%,rgba(255,179,64,.05),transparent)}
+  .flash{animation:fl .4s ease}@keyframes fl{0%{transform:scale(1.015)}100%{transform:scale(1)}}
+
+  /* power band gauge */
+  .gauge-wrap{padding:15px 20px 6px}
+  .gauge-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}
+  .gauge-head .pb{font-family:'Saira Condensed';font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--prim)}
+  .gauge-head .pbsub{font-size:10px;color:var(--faint);letter-spacing:.05em;font-family:'Spline Sans Mono'}
+  #gauge{width:100%;height:auto;display:block}
+
+  .ref{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge-soft);border-top:1px solid var(--edge-soft);margin-top:13px}
+  .ref .c{background:var(--panel);padding:11px 13px}
+  .ref .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .ref .v{font-family:'Spline Sans Mono';font-weight:600;font-size:15px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .ref .v small{font-size:10px;color:var(--muted);font-weight:500}
+
+  .notes{padding:2px 18px 15px;display:grid;gap:7px}
+  .note{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;line-height:1.45;padding:9px 11px;border-radius:9px}
+  .note svg{width:15px;height:15px;flex:none;margin-top:1px}
+  .note.info{background:rgba(167,139,250,.07);border:1px solid color-mix(in srgb,var(--prim) 26%,transparent);color:#e3d9ff}
+  .note.info svg{color:var(--prim)}
+  .note.amber{background:color-mix(in srgb,var(--amber) 10%,transparent);border:1px solid color-mix(in srgb,var(--amber) 32%,transparent);color:#ffe6c2}
+  .note.amber svg{color:var(--amber)}
+  .note.red{background:color-mix(in srgb,var(--red) 11%,transparent);border:1px solid color-mix(in srgb,var(--red) 35%,transparent);color:#ffd0d8}
+  .note.red svg{color:var(--red)}
+
+  /* planning */
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .tankrow{display:flex;gap:7px;margin-top:7px}
+  .tankrow button{flex:1;font-family:'Saira';font-size:10.5px;font-weight:500;color:var(--faint);background:var(--inset);border:1px solid var(--edge-soft);border-radius:8px;cursor:pointer;padding:7px 4px;transition:.15s}
+  .tankrow button.on{color:var(--prim);border-color:color-mix(in srgb,var(--prim) 45%,transparent);background:rgba(167,139,250,.1)}
+  .tankrow button:not(.on):hover{color:var(--text)}
+
+  .out{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--edge-soft);border:1px solid var(--edge-soft);border-radius:12px;overflow:hidden;margin-top:4px}
+  .out .o{background:var(--panel);padding:12px 13px}
+  .out .o.wide{grid-column:1/3}
+  .out .k{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+  .out .v{font-family:'Spline Sans Mono';font-weight:600;font-size:19px;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--text)}
+  .out .v small{font-size:10.5px;color:var(--muted);font-weight:500;margin-left:1px}
+  .out .v.accent{color:var(--prim)}.out .v.cyan{color:var(--cyan)}.out .v.amber{color:var(--amber)}.out .v.green{color:var(--green)}.out .v.red{color:var(--red)}
+  .out .sub{font-size:10px;color:var(--faint);margin-top:3px;letter-spacing:.02em}
+
+  .leg-status{margin-top:13px;padding:12px 14px;border-radius:11px;border:1px solid var(--edge);background:var(--inset);transition:.3s;display:flex;gap:11px;align-items:center}
+  .leg-status svg{width:20px;height:20px;flex:none}
+  .leg-status .txt{font-size:12px;line-height:1.4}
+  .leg-status .txt b{font-family:'Saira Condensed';font-size:14px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:2px}
+
+  .disclaimer{margin-top:18px;display:flex;gap:13px;align-items:flex-start;padding:15px 18px;border-radius:14px;border:1px solid var(--edge-soft);background:rgba(8,7,17,.5)}
+  .disclaimer svg{width:20px;height:20px;color:var(--prim);flex:none;margin-top:1px}
+  .disclaimer p{font-size:11.5px;color:var(--faint);line-height:1.6}
+  .disclaimer p+p{margin-top:7px}
+  .disclaimer b{color:var(--muted);font-weight:600}
+
+  @media (max-width:980px){
+    .layout{grid-template-columns:1fr;grid-template-areas:"results" "planning" "inputs"}
+  }
+  @media (max-width:720px){
+    body{padding:13px}
+    .res-grid{grid-template-columns:1fr}
+    .ref{grid-template-columns:repeat(2,1fr)}
+    .plan-grid{grid-template-columns:1fr}
+    .brand h1{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="m13.4 12.6 4.6-4.6"/>
+          <path d="M3.5 18a9 9 0 1 1 17 0"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Cruise Performance · <b>R172K</b></h1>
+        <p>Figure 5-7 &middot; Recommended Lean Mixture</p>
+      </div>
+    </div>
+    <div class="tail"><span class="d"></span>REG&nbsp;<b>VH-YPM</b></div>
+  </header>
+
+  <main class="layout">
+
+    <!-- INPUTS -->
+    <section class="card inputs">
+      <div class="card-h"><span class="tag">Setup</span><span class="ix">INPUT</span></div>
+      <div class="card-body">
+        <div class="basis">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v4h1"/></svg>
+          <span>Chart basis: <b>2550 lb</b>, recommended lean mixture, cowl flap closed. Figures interpolated across pressure altitude, temperature, RPM and manifold pressure.</span>
+        </div>
+        <div class="presets" id="presets"></div>
+
+        <div class="field">
+          <div class="field-top"><label>Cruise Pressure Alt</label><span class="hint" id="paMode">via QNH</span></div>
+          <div class="control">
+            <div class="num" data-key="elev"><button class="step" data-act="dec">&minus;</button><input id="in-elev" inputmode="decimal" value="0"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="elev"><button data-u="ft" class="on">FT</button><button data-u="m">M</button></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Altimeter (QNH)</label><span class="hint" id="paHint">PA &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="pres"><button class="step" data-act="dec">&minus;</button><input id="in-pres" inputmode="decimal" value="29.92"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="pres"><button data-u="inHg" class="on">inHg</button><button data-u="hPa">hPa</button></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Temperature (OAT)</label><span class="hint" id="isaHint">ISA &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="temp"><button class="step" data-act="dec">&minus;</button><input id="in-temp" inputmode="decimal" value="15"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="temp"><button data-u="C" class="on">&deg;C</button><button data-u="F">&deg;F</button></div>
+          </div>
+        </div>
+
+        <div class="subhdr">Power Setting</div>
+        <div class="field">
+          <div class="field-top"><label>Propeller RPM</label></div>
+          <div class="rpmseg" id="rpmseg">
+            <button data-v="2200">2200<span class="u">RPM</span></button>
+            <button data-v="2300">2300<span class="u">RPM</span></button>
+            <button data-v="2400">2400<span class="u">RPM</span></button>
+            <button data-v="2500" class="on">2500<span class="u">RPM</span></button>
+            <button data-v="2600">2600<span class="u">RPM</span></button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-top"><label>Manifold Pressure</label><span class="hint" id="mpHint">range &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="mp"><button class="step" data-act="dec">&minus;</button><input id="in-mp" inputmode="decimal" value="22"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle"><button class="on" style="cursor:default">inHg</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card results">
+      <div class="res-grid">
+        <div class="big-cell bhp"><div class="lab">Power<i>% BHP</i></div><div class="big" id="bhpBig">&mdash;</div></div>
+        <div class="big-cell ktas"><div class="lab">True Airspeed<i>KTAS</i></div><div class="big" id="ktasBig">&mdash;</div></div>
+        <div class="big-cell gph"><div class="lab">Fuel Flow<i>gal / hr</i></div><div class="big" id="gphBig">&mdash;</div></div>
+      </div>
+
+      <div class="gauge-wrap">
+        <div class="gauge-head"><span class="pb" id="pbName">&mdash;</span><span class="pbsub" id="pbSub"></span></div>
+        <svg id="gauge" viewBox="0 0 660 64" role="img" aria-label="Power band"></svg>
+      </div>
+
+      <div class="ref">
+        <div class="c"><div class="k">Pressure Alt</div><div class="v" id="paRef">&mdash;</div></div>
+        <div class="c"><div class="k">ISA Dev</div><div class="v" id="isaRef">&mdash;</div></div>
+        <div class="c"><div class="k">Density Alt</div><div class="v" id="daRef">&mdash;</div></div>
+        <div class="c"><div class="k">Specific Range</div><div class="v" id="srRef">&mdash;</div></div>
+      </div>
+
+      <div class="notes" id="notes"></div>
+    </section>
+
+    <!-- PLANNING -->
+    <section class="card planning">
+      <div class="card-h"><span class="tag">Trip &amp; Fuel</span><span class="ix">PLANNING</span></div>
+      <div class="card-body">
+        <div class="plan-grid">
+          <div>
+            <div class="field" style="margin-bottom:10px">
+              <div class="field-top"><label>Fuel on Board</label><span class="hint">usable</span></div>
+              <div class="control">
+                <div class="num" data-key="fuel"><button class="step" data-act="dec">&minus;</button><input id="in-fuel" inputmode="decimal" value="49"><button class="step" data-act="inc">+</button></div>
+                <div class="toggle"><button class="on" style="cursor:default">GAL</button></div>
+              </div>
+              <div class="tankrow" id="tankrow">
+                <button data-v="49" class="on">Std 49 gal</button>
+                <button data-v="66">Long-range 66 gal</button>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <div class="field-top"><label>Reserve</label><span class="hint">minutes</span></div>
+              <div class="control">
+                <div class="num" data-key="res"><button class="step" data-act="dec">&minus;</button><input id="in-res" inputmode="decimal" value="45"><button class="step" data-act="inc">+</button></div>
+                <div class="toggle"><button class="on" style="cursor:default">MIN</button></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="field" style="margin-bottom:10px">
+              <div class="field-top"><label>Wind Component</label><span class="hint">+head / &minus;tail</span></div>
+              <div class="control">
+                <div class="num" data-key="wind"><button class="step" data-act="dec">&minus;</button><input id="in-wind" inputmode="decimal" value="0"><button class="step" data-act="inc">+</button></div>
+                <div class="toggle"><button class="on" style="cursor:default">KT</button></div>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <div class="field-top"><label>Leg Distance</label><span class="hint">0 = off</span></div>
+              <div class="control">
+                <div class="num" data-key="leg"><button class="step" data-act="dec">&minus;</button><input id="in-leg" inputmode="decimal" value="0"><button class="step" data-act="inc">+</button></div>
+                <div class="toggle"><button class="on" style="cursor:default">NM</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subhdr">Endurance &amp; Range</div>
+        <div class="out">
+          <div class="o"><div class="k">Endurance · to dry tanks</div><div class="v" id="endDry">&mdash;</div></div>
+          <div class="o"><div class="k">Endurance · to reserve</div><div class="v green" id="endRes">&mdash;</div></div>
+          <div class="o"><div class="k">Groundspeed</div><div class="v cyan" id="gsOut">&mdash;</div></div>
+          <div class="o"><div class="k">Still-air range · to reserve</div><div class="v" id="rngAir">&mdash;</div></div>
+          <div class="o wide"><div class="k">Range over ground · to reserve</div><div class="v accent" id="rngGnd">&mdash;</div><div class="sub" id="rngGndSub"></div></div>
+        </div>
+
+        <div id="legWrap" style="display:none">
+          <div class="subhdr">Selected Leg</div>
+          <div class="out">
+            <div class="o"><div class="k">Time en route</div><div class="v cyan" id="legETE">&mdash;</div></div>
+            <div class="o"><div class="k">Fuel required</div><div class="v amber" id="legFuel">&mdash;</div></div>
+          </div>
+          <div class="leg-status" id="legStatus">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="txt"><b id="legStTitle">&mdash;</b><span id="legStBody"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="disclaimer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+    </svg>
+    <div>
+      <p><b>For planning and training only — not a substitute for the approved AFM/POH.</b> Power, true airspeed and fuel-flow figures are interpolated from <b>Figure 5-7 (Cruise Performance)</b> of the Cessna R172K POH, valid at 2550 lb with the recommended lean mixture and cowl flap closed. The chart spans 2,000–12,000 ft pressure altitude, ISA&minus;20 to ISA+20, and 2200–2600 RPM; values outside these ranges are clamped, and manifold pressures above what is achievable at altitude are limited to the chart maximum. <b>For best fuel economy at 70% power or less, the POH directs leaning a further 1 GPH below the chart (or to peak EGT if an EGT gauge is fitted)</b> — actual flow may then be lower than shown.</p>
+      <p>Endurance and range are cruise-only estimates and <b>do not include taxi, takeoff, climb, descent or manoeuvring fuel</b>, all of which must be added separately (see the climb and fuel-flow charts). Real performance varies with mixture technique, engine condition, airframe rigging and instrument error. Always cross-check against current data, plan a sensible reserve, and remember the <b>pilot in command is solely responsible for fuel planning and the safe conduct of the flight.</b></p>
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ===================== POH DATA — Figure 5-7 (verified against page images) ===================== */
+/* row: [rpm, mp, b_bhp,b_ktas,b_gph, s_bhp,s_ktas,s_gph, a_bhp,a_ktas,a_gph]  (b=ISA-20, s=ISA, a=ISA+20) */
+const CRUISE={
+2000:{std:11,rows:[
+[2600,24,null,null,null,81,126,11.4,78,127,11.0],[2600,23,78,122,11.1,76,122,10.7,73,123,10.3],[2600,22,73,118,10.3,71,119,10.0,68,119,9.6],[2600,21,68,114,9.6,65,114,9.3,63,114,9.0],
+[2500,25,null,null,null,81,126,11.5,79,127,11.1],[2500,24,80,122,11.2,77,123,10.8,74,124,10.5],[2500,23,75,119,10.6,72,120,10.2,70,120,9.9],[2500,22,70,116,9.9,67,116,9.5,65,116,9.2],
+[2400,25,79,122,11.2,76,123,10.8,74,123,10.4],[2400,24,74,119,10.5,72,120,10.2,69,120,9.8],[2400,23,70,116,9.9,67,116,9.5,65,116,9.2],[2400,22,65,112,9.2,63,112,8.9,61,112,8.6],
+[2300,25,74,119,10.5,72,119,10.1,69,120,9.8],[2300,24,70,116,9.9,67,116,9.5,65,116,9.2],[2300,23,65,112,9.2,63,112,8.9,61,112,8.7],[2300,22,61,108,8.6,59,108,8.4,57,107,8.1],
+[2200,25,69,115,9.8,67,115,9.4,64,115,9.1],[2200,24,65,112,9.2,63,112,8.9,61,111,8.6],[2200,23,61,108,8.6,59,108,8.3,57,107,8.1],[2200,22,57,104,8.1,55,103,7.8,53,102,7.6],[2200,21,52,99,7.6,51,98,7.3,49,97,7.1],[2200,20,48,94,7.0,47,93,6.8,45,91,6.6],[2200,19,44,88,6.5,43,87,6.3,41,86,6.2]]},
+4000:{std:7,rows:[
+[2600,23,81,126,11.5,79,127,11.1,76,127,10.7],[2600,22,76,122,10.8,73,123,10.4,71,123,10.0],[2600,21,71,119,10.0,68,119,9.7,66,119,9.3],[2600,20,66,114,9.3,63,114,9.0,61,113,8.7],
+[2500,24,82,126,11.6,79,127,11.2,77,128,10.8],[2500,23,77,123,11.0,75,124,10.6,72,124,10.2],[2500,22,73,120,10.3,70,120,9.9,68,120,9.6],[2500,21,68,116,9.6,65,116,9.3,63,116,9.0],
+[2400,24,77,123,10.9,74,124,10.5,72,124,10.2],[2400,23,72,120,10.2,70,120,9.9,68,120,9.5],[2400,22,68,116,9.6,65,116,9.2,63,116,9.0],[2400,21,63,112,8.9,61,111,8.6,59,110,8.4],
+[2300,24,72,120,10.2,70,120,9.9,67,120,9.5],[2300,23,68,116,9.6,65,116,9.3,63,116,9.0],[2300,22,63,112,9.0,61,112,8.7,59,111,8.4],[2300,21,59,108,8.4,57,107,8.1,55,106,7.9],
+[2200,24,68,116,9.6,65,116,9.2,63,115,8.9],[2200,23,63,112,9.0,61,112,8.7,59,111,8.4],[2200,22,59,108,8.4,57,107,8.1,55,106,7.9],[2200,21,55,103,7.9,53,102,7.6,51,101,7.4],[2200,20,51,98,7.3,49,97,7.1,47,95,6.9],[2200,19,46,92,6.8,45,91,6.6,43,89,6.4]]},
+6000:{std:3,rows:[
+[2600,23,null,null,null,81,131,11.5,79,131,11.1],[2600,22,79,126,11.2,76,127,10.8,74,127,10.4],[2600,21,74,123,10.5,71,123,10.1,69,123,9.7],[2600,20,69,119,9.7,66,118,9.3,64,118,9.1],
+[2500,23,80,127,11.3,77,128,10.9,75,128,10.6],[2500,22,76,124,10.7,73,124,10.3,70,124,9.9],[2500,21,71,120,10.0,68,120,9.6,66,120,9.3],[2500,20,66,116,9.3,63,116,9.0,61,115,8.7],
+[2400,23,75,124,10.6,72,124,10.2,70,124,9.9],[2400,22,70,120,9.9,68,120,9.6,65,120,9.3],[2400,21,65,116,9.3,63,115,9.0,61,114,8.7],[2400,20,61,111,8.6,59,110,8.4,57,109,8.1],
+[2300,23,71,120,10.0,68,120,9.6,66,120,9.3],[2300,22,66,116,9.3,64,116,9.0,61,115,8.7],[2300,21,61,112,8.7,59,111,8.4,57,110,8.2],[2300,20,57,107,8.1,55,105,7.9,53,105,7.6],
+[2200,23,66,116,9.3,63,116,9.0,61,115,8.7],[2200,22,62,112,8.7,59,111,8.4,57,110,8.2],[2200,21,57,107,8.2,55,106,7.9,53,105,7.7],[2200,20,53,102,7.6,51,101,7.4,49,99,7.2],[2200,19,49,96,7.1,47,95,6.8,45,93,6.7],[2200,18,44,90,6.6,43,89,6.4,41,87,6.2]]},
+8000:{std:-1,rows:[
+[2600,21,77,127,10.9,74,128,10.5,72,127,10.1],[2600,20,72,123,10.1,69,123,9.8,67,122,9.4],[2600,19,66,118,9.4,64,118,9.0,62,116,8.8],[2600,18,61,113,8.6,59,111,8.3,57,110,8.1],
+[2500,21,74,125,10.4,71,125,10.0,69,124,9.7],[2500,20,69,120,9.7,66,120,9.4,64,119,9.1],[2500,19,64,116,9.0,61,115,8.7,59,113,8.4],[2500,18,59,110,8.4,56,109,8.1,54,108,7.8],
+[2400,21,68,120,9.6,65,119,9.3,63,118,9.0],[2400,20,63,115,9.0,61,114,8.6,59,113,8.4],[2400,19,58,110,8.3,56,108,8.0,54,107,7.8],[2400,18,54,104,7.7,52,103,7.5,50,101,7.2],
+[2300,21,64,116,9.1,62,115,8.7,59,114,8.5],[2300,20,59,111,8.5,57,109,8.2,55,109,7.9],[2300,19,55,105,7.9,53,104,7.6,51,103,7.4],[2300,18,50,100,7.3,48,98,7.0,47,96,6.8],
+[2200,21,60,111,8.5,57,110,8.2,55,109,7.9],[2200,20,55,106,7.9,53,105,7.7,51,103,7.4],[2200,19,51,100,7.4,49,99,7.1,47,97,6.9],[2200,18,47,94,6.8,45,93,6.6,43,91,6.4]]},
+10000:{std:-5,rows:[
+[2600,19,69,123,9.8,67,122,9.4,64,121,9.1],[2600,18,64,117,9.0,61,116,8.7,59,115,8.4],[2600,17,58,110,8.3,56,109,8.0,54,108,7.8],[2600,16,53,104,7.6,51,102,7.3,49,100,7.1],
+[2500,19,67,120,9.4,64,119,9.1,62,118,8.8],[2500,18,62,115,8.7,59,113,8.4,57,112,8.2],[2500,17,56,108,8.0,54,107,7.8,52,105,7.5],[2500,16,50,101,7.3,49,99,7.1,47,97,6.8],
+[2400,19,61,114,8.6,59,112,8.3,56,111,8.1],[2400,18,56,108,8.0,54,107,7.8,52,105,7.5],[2400,17,51,102,7.4,49,100,7.2,48,99,7.0],[2400,16,47,95,6.8,45,94,6.6,43,91,6.4],
+[2300,19,57,109,8.2,55,108,7.9,53,107,7.7],[2300,18,53,104,7.6,51,102,7.3,49,100,7.1],[2300,17,48,97,7.0,46,95,6.8,45,94,6.6],
+[2200,19,53,104,7.7,51,103,7.4,49,101,7.2],[2200,18,49,98,7.1,47,97,6.9,45,95,6.7],[2200,17,45,92,6.6,43,90,6.4,42,88,6.2]]},
+12000:{std:-9,rows:[
+[2600,18,67,122,9.4,64,121,9.1,62,120,8.8],[2600,17,61,115,8.7,59,114,8.4,57,113,8.1],[2600,16,55,108,7.9,53,107,7.7,51,105,7.4],[2600,15,50,100,7.2,48,99,7.0,46,97,6.7],
+[2500,18,64,119,9.1,62,118,8.8,60,117,8.5],[2500,17,59,112,8.4,57,112,8.1,55,110,7.8],[2500,16,53,106,7.7,51,104,7.4,49,102,7.2],[2500,15,47,97,6.9,45,95,6.7,44,93,6.5],
+[2400,18,58,112,8.3,56,111,8.0,54,109,7.8],[2400,17,54,106,7.7,52,104,7.5,50,103,7.2],[2400,16,49,100,7.1,47,98,6.9,46,96,6.7],[2400,15,44,93,6.6,43,90,6.4,41,88,6.2],
+[2300,18,55,108,7.9,53,106,7.6,51,104,7.4],[2300,17,50,101,7.3,48,100,7.1,47,98,6.8],[2300,16,46,95,6.7,44,93,6.5,43,90,6.3],
+[2200,18,51,103,7.4,49,101,7.1,47,99,6.9],[2200,17,47,96,6.8,45,94,6.6,44,92,6.4]]}
+};
+const ALTS=Object.keys(CRUISE).map(Number).sort((a,b)=>a-b);
+
+const ISA={T0:288.15,L:0.0065,g:9.80665,R:287.053,P0:1013.25,FT:0.3048,INHG:33.8638866667,rho0:1.225};
+ISA.EXP=ISA.g/(ISA.R*ISA.L);
+
+/* ===================== engine ===================== */
+const lerp=(a,b,f)=>a+(b-a)*f;
+const lerpT=(A,B,f)=>[lerp(A[0],B[0],f),lerp(A[1],B[1],f),lerp(A[2],B[2],f)];
+function rowsRpm(alt,rpm){return CRUISE[alt].rows.filter(r=>r[0]===rpm).sort((a,b)=>b[1]-a[1]);}
+function tripAt(row,w){const o=2+w*3;const t=[row[o],row[o+1],row[o+2]];if(t[0]==null)return [row[5],row[6],row[7]];return t;}
+function tempInterp(row,dev){const b=tripAt(row,0),s=tripAt(row,1),a=tripAt(row,2);
+  if(dev<=-20)return b.slice();if(dev>=20)return a.slice();if(dev<0)return lerpT(b,s,(dev+20)/20);return lerpT(s,a,dev/20);}
+function atAlt(alt,rpm,mp,dev){const rr=rowsRpm(alt,rpm);if(!rr.length)return null;
+  const lo=rr[rr.length-1][1],hi=rr[0][1];const cm=Math.min(hi,Math.max(lo,mp));const clamp=(mp>hi+1e-9)||(mp<lo-1e-9);
+  let r0=rr[0],r1=rr[0];for(let i=0;i<rr.length-1;i++){if(cm<=rr[i][1]&&cm>=rr[i+1][1]){r0=rr[i];r1=rr[i+1];break;}}
+  const f=(r0[1]===r1[1])?0:(r0[1]-cm)/(r0[1]-r1[1]);
+  return {trip:lerpT(tempInterp(r0,dev),tempInterp(r1,dev),f),clamp,maxMP:hi,minMP:lo};}
+function compute(paFt,oatC,rpm,mp){
+  const pa=Math.min(12000,Math.max(2000,paFt));
+  let aLo=ALTS[0],aHi=ALTS[ALTS.length-1];
+  for(let i=0;i<ALTS.length-1;i++){if(pa>=ALTS[i]&&pa<=ALTS[i+1]){aLo=ALTS[i];aHi=ALTS[i+1];break;}}
+  const fPA=(aHi===aLo)?0:(pa-aLo)/(aHi-aLo);
+  const lo=atAlt(aLo,rpm,mp,Math.max(-20,Math.min(20,oatC-CRUISE[aLo].std)));
+  const hi=atAlt(aHi,rpm,mp,Math.max(-20,Math.min(20,oatC-CRUISE[aHi].std)));
+  if(!lo||!hi)return null;
+  const t=lerpT(lo.trip,hi.trip,fPA);
+  return {bhp:t[0],ktas:t[1],gph:t[2],maxMP:lerp(lo.maxMP,hi.maxMP,fPA),minMP:lerp(lo.minMP,hi.minMP,fPA),clamp:lo.clamp||hi.clamp};
+}
+function pressAlt(elev_m,qnh_hpa){const Pstn=qnh_hpa*Math.pow(1-(ISA.L*elev_m)/ISA.T0,ISA.EXP);return (ISA.T0/ISA.L)*(1-Math.pow(Pstn/ISA.P0,1/ISA.EXP))/ISA.FT;}
+function densAlt(pa_ft,oatC){const isaT=15-ISA.L*pa_ft*ISA.FT;return pa_ft+(118.8/ISA.FT*ISA.FT)*0+ (oatC-isaT)*118.8;} // 118.8 ft per °C dev (approx)
+
+/* ===================== state ===================== */
+const S={elevU:'ft',presU:'inHg',tempU:'C',elev:0,pres:29.92,temp:15,rpm:2500,mp:22,
+  fuel:49,res:45,wind:0,leg:0};
+const STEP={elev:{ft:500,m:100},pres:{inHg:0.01,hPa:1},temp:{C:1,F:2},mp:{'':0.5},fuel:{'':1},res:{'':5},wind:{'':1},leg:{'':10}};
+
+const toM=(v,u)=>u==='ft'?v*ISA.FT:v, toHpa=(v,u)=>u==='inHg'?v*ISA.INHG:v, toC=(v,u)=>u==='F'?(v-32)*5/9:v;
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+function hm(hours){if(!isFinite(hours)||hours<0)return '—';const m=Math.round(hours*60);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0');}
+
+/* ===================== render ===================== */
+function render(){
+  const elev_m=toM(S.elev,S.elevU),QNH=toHpa(S.pres,S.presU),OAT=toC(S.temp,S.tempU);
+  const ok=[elev_m,QNH,OAT].every(x=>!isNaN(x))&&QNH>0;
+  document.querySelector('[data-key="pres"]').classList.toggle('bad',isNaN(S.pres)||S.pres<=0);
+  if(!ok){clearOut();return;}
+  const pa=pressAlt(elev_m,QNH);
+  const isaDev=OAT-(15-ISA.L*pa*ISA.FT);
+  const da=pa+118.8*isaDev;
+
+  // clamp MP to achievable at this PA for this RPM
+  const probe=compute(pa,OAT,S.rpm,S.mp);
+  const maxMP=Math.floor(probe.maxMP), minMP=Math.ceil(probe.minMP);
+  if(S.mp>maxMP){S.mp=maxMP;document.getElementById('in-mp').value=S.mp;}
+  if(S.mp<minMP){S.mp=minMP;document.getElementById('in-mp').value=S.mp;}
+  document.getElementById('mpHint').textContent='range '+minMP+'–'+maxMP+'″';
+
+  const r=compute(pa,OAT,S.rpm,S.mp);
+
+  // hints / refs
+  const devF=(S.tempU==='F'?isaDev*9/5:isaDev);
+  document.getElementById('paHint').innerHTML='PA '+fmt(pa)+' ft';
+  document.getElementById('paRef').innerHTML=fmt(pa)+'<small> ft</small>';
+  document.getElementById('isaHint').innerHTML='ISA '+(isaDev>=0?'+':'−')+Math.abs(devF).toFixed(0)+'°';
+  document.getElementById('isaRef').innerHTML=(isaDev>=0?'+':'−')+Math.abs(devF).toFixed(0)+'<small>°'+(S.tempU==='F'?'F':'C')+'</small>';
+  document.getElementById('daRef').innerHTML=fmt(da)+'<small> ft</small>';
+
+  // big readouts
+  setBig('bhpBig',Math.round(r.bhp),'%');
+  setBig('ktasBig',Math.round(r.ktas),'kt');
+  setBig('gphBig',r.gph.toFixed(1),'gph');
+
+  // power band
+  const band=powerBand(r.bhp);
+  document.getElementById('pbName').textContent=band.name;
+  document.getElementById('pbSub').textContent=band.sub;
+  document.getElementById('pbName').style.color=band.col;
+  drawGauge(r.bhp,band.col);
+
+  // specific range (still air)
+  const sr=r.ktas/r.gph;
+  document.getElementById('srRef').innerHTML=sr.toFixed(1)+'<small> nm/gal</small>';
+
+  // notes
+  buildNotes(pa,isaDev,r);
+
+  // planning
+  planning(r);
+}
+
+function setBig(id,val,u){const el=document.getElementById(id);el.innerHTML=val+'<span class="u">'+u+'</span>';
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
+
+function powerBand(b){
+  if(b>=75)return{name:'Performance Cruise',sub:'≥75% BHP',col:'#ff5470'};
+  if(b>=65)return{name:'Normal Cruise',sub:'65–75% BHP',col:'#ffb340'};
+  if(b>=55)return{name:'Economy Cruise',sub:'55–65% BHP',col:'#37d98a'};
+  return{name:'Low / Long-Range',sub:'<55% BHP',col:'#38bdf8'};
+}
+
+function clearOut(){
+  ['bhpBig','ktasBig','gphBig'].forEach(i=>document.getElementById(i).innerHTML='&mdash;');
+  ['paRef','isaRef','daRef','srRef'].forEach(i=>document.getElementById(i).innerHTML='&mdash;');
+  ['endDry','endRes','gsOut','rngAir','rngGnd','legETE','legFuel'].forEach(i=>document.getElementById(i).innerHTML='&mdash;');
+  document.getElementById('pbName').textContent='—';document.getElementById('pbSub').textContent='';
+  document.getElementById('notes').innerHTML='';document.getElementById('gauge').innerHTML='';
+}
+
+/* power band gauge */
+function drawGauge(bhp,col){
+  const W=660,x0=14,x1=646,y=26,h=15;const lo=40,hi=85;
+  const px=v=>x0+(x1-x0)*Math.max(0,Math.min(1,(v-lo)/(hi-lo)));
+  const zones=[[40,55,'#38bdf8'],[55,65,'#37d98a'],[65,75,'#ffb340'],[75,85,'#ff5470']];
+  let g='';
+  zones.forEach(([a,b,c])=>{g+=`<rect x="${px(a).toFixed(1)}" y="${y}" width="${(px(b)-px(a)).toFixed(1)}" height="${h}" fill="${c}" opacity=".22"/>`;});
+  g+=`<rect x="${x0}" y="${y}" width="${x1-x0}" height="${h}" rx="3" fill="none" stroke="#2c2740"/>`;
+  [55,65,75].forEach(t=>{g+=`<line x1="${px(t).toFixed(1)}" y1="${y}" x2="${px(t).toFixed(1)}" y2="${y+h}" stroke="#2c2740" stroke-width="1"/>`;});
+  [40,55,65,75,85].forEach(t=>{g+=`<text x="${px(t).toFixed(1)}" y="${y+h+15}" text-anchor="middle" font-family="Spline Sans Mono" font-size="10" fill="#6a5f86">${t}</text>`;});
+  // needle
+  const nx=px(bhp);
+  g+=`<polygon points="${(nx-6).toFixed(1)},${y-9} ${(nx+6).toFixed(1)},${y-9} ${nx.toFixed(1)},${y-1}" fill="${col}"/>`;
+  g+=`<line x1="${nx.toFixed(1)}" y1="${y-2}" x2="${nx.toFixed(1)}" y2="${y+h+2}" stroke="${col}" stroke-width="2.2"/>`;
+  g+=`<text x="${nx.toFixed(1)}" y="${y-13}" text-anchor="middle" font-family="Spline Sans Mono" font-size="11" font-weight="700" fill="${col}">${Math.round(bhp)}%</text>`;
+  document.getElementById('gauge').innerHTML=g;
+}
+
+function buildNotes(pa,isaDev,r){
+  const n=[];
+  if(pa<2000) n.push(['amber','warn',`Pressure altitude ${fmt(pa)} ft is below the 2,000 ft chart floor — using the 2,000 ft data (slightly conservative on speed).`]);
+  if(pa>12000) n.push(['red','warn',`Pressure altitude ${fmt(pa)} ft is above the 12,000 ft chart ceiling — figures are extrapolated and unreliable.`]);
+  if(isaDev>20) n.push(['amber','warn',`OAT is more than ISA+20 — values are clamped to the ISA+20 column; expect slightly lower power and higher fuel-specific range loss.`]);
+  if(isaDev<-20) n.push(['info','i',`OAT is below ISA−20 — values clamped to the ISA−20 column.`]);
+  if(r.clamp) n.push(['amber','warn',`Manifold pressure limited to ${Math.floor(r.maxMP)}″ — higher MP is not achievable at this altitude with full throttle.`]);
+  if(r.bhp<=70) n.push(['info','i',`At ${Math.round(r.bhp)}% power the POH allows leaning a further 1 GPH below the chart (or to peak EGT) for best economy — actual flow may be lower than shown.`]);
+  if(r.bhp>=78) n.push(['info','i',`High cruise power — monitor CHT/EGT and keep the mixture rich enough for cooling.`]);
+  document.getElementById('notes').innerHTML=n.map(([cls,ic,t])=>{
+    const icon=ic==='warn'?'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>':'<circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v4h1"/>';
+    return `<div class="note ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${t}</span></div>`;}).join('');
+}
+
+function planning(r){
+  const gph=r.gph, tas=r.ktas;
+  const fuel=isNaN(S.fuel)?0:S.fuel, res=isNaN(S.res)?0:S.res, wind=isNaN(S.wind)?0:S.wind;
+  const resFuel=gph*res/60;
+  const usable=Math.max(0,fuel-resFuel);
+  const endDry=fuel/gph, endRes=usable/gph;
+  const gs=Math.max(0,tas-wind);
+  const rngAir=endRes*tas, rngGnd=endRes*gs;
+
+  document.getElementById('endDry').innerHTML=hm(endDry)+'<small> h</small>';
+  document.getElementById('endRes').innerHTML=hm(endRes)+'<small> h</small>';
+  document.getElementById('gsOut').innerHTML=fmt(gs)+'<small> kt</small>';
+  document.getElementById('rngAir').innerHTML=fmt(rngAir)+'<small> nm</small>';
+  document.getElementById('rngGnd').innerHTML=fmt(rngGnd)+'<small> nm</small>';
+  document.getElementById('rngGndSub').textContent=(wind>0?`incl. ${wind} kt headwind`:wind<0?`incl. ${-wind} kt tailwind`:'still air')+` · burns ${gph.toFixed(1)} gph`;
+
+  const legWrap=document.getElementById('legWrap');
+  if(S.leg>0 && !isNaN(S.leg) && gs>0){
+    legWrap.style.display='block';
+    const ete=S.leg/gs, legFuel=ete*gph;
+    document.getElementById('legETE').innerHTML=hm(ete)+'<small> h</small>';
+    document.getElementById('legFuel').innerHTML=legFuel.toFixed(1)+'<small> gal</small>';
+    const remain=fuel-legFuel;
+    const box=document.getElementById('legStatus'),icon=box.querySelector('svg'),tt=document.getElementById('legStTitle'),tb=document.getElementById('legStBody');
+    let col,title,body;
+    if(legFuel>fuel){col='var(--red)';title='Insufficient fuel';body=`Leg needs ${legFuel.toFixed(1)} gal but only ${fuel.toFixed(0)} gal aboard — short by ${(legFuel-fuel).toFixed(1)} gal.`;}
+    else if(remain<resFuel){col='var(--amber)';title='Below reserve';body=`Arrives with ${remain.toFixed(1)} gal — under the ${resFuel.toFixed(1)} gal (${res} min) reserve. Add fuel or reduce power.`;}
+    else{col='var(--green)';title='Fuel OK';body=`Arrives with ${remain.toFixed(1)} gal (${hm((remain)/gph)} h), keeping the ${res} min reserve intact.`;}
+    box.style.borderColor=col;box.style.background='color-mix(in srgb,'+col+' 9%, var(--inset))';icon.style.color=col;tt.style.color=col;
+    icon.innerHTML = (col==='var(--red)'||col==='var(--amber)')?'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>':'<circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/>';
+    tt.textContent=title;tb.textContent=body;
+  } else legWrap.style.display='none';
+}
+
+/* ===================== input wiring ===================== */
+function unitOf(k){return k==='elev'?S.elevU:k==='pres'?S.presU:k==='temp'?S.tempU:'';}
+function dec(k){return (k==='pres'&&S.presU==='inHg')?2:(k==='mp')?1:0;}
+function bindNum(key){
+  const input=document.getElementById('in-'+key);if(!input)return;
+  input.addEventListener('input',()=>{S[key]=parseFloat(input.value);render();});
+  document.querySelector(`[data-key="${key}"]`).querySelectorAll('.step').forEach(btn=>btn.addEventListener('click',()=>{
+    const u=unitOf(key),d=STEP[key][u]!==undefined?STEP[key][u]:STEP[key][''];
+    let cur=parseFloat(input.value);if(isNaN(cur))cur=0;cur+=(btn.dataset.act==='inc'?d:-d);
+    if(['fuel','res','leg','elev'].includes(key)&&key!=='temp')cur=Math.max(0,cur);
+    cur=Math.round(cur/d)*d;S[key]=+cur.toFixed(dec(key));input.value=S[key];render();}));
+}
+['elev','pres','temp','mp','fuel','res','wind','leg'].forEach(bindNum);
+
+document.querySelectorAll('.toggle[data-unit]').forEach(t=>{const key=t.dataset.unit;
+  t.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    const nu=btn.dataset.u,cu=unitOf(key);if(nu===cu)return;let v=S[key];
+    if(!isNaN(v)){if(key==='elev')v=(nu==='m')?v*ISA.FT:v/ISA.FT;if(key==='pres')v=(nu==='hPa')?v*ISA.INHG:v/ISA.INHG;if(key==='temp')v=(nu==='F')?v*9/5+32:(v-32)*5/9;
+      S[key]=+v.toFixed((key==='pres'&&nu==='inHg')?2:0);}
+    if(key==='elev')S.elevU=nu;if(key==='pres')S.presU=nu;if(key==='temp')S.tempU=nu;
+    t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.u===nu));
+    document.getElementById('in-'+key).value=S[key];render();}));});
+
+// RPM segmented
+document.querySelectorAll('#rpmseg button').forEach(b=>b.addEventListener('click',()=>{
+  S.rpm=parseInt(b.dataset.v);document.querySelectorAll('#rpmseg button').forEach(x=>x.classList.toggle('on',x===b));render();}));
+// tank presets
+document.querySelectorAll('#tankrow button').forEach(b=>b.addEventListener('click',()=>{
+  S.fuel=parseInt(b.dataset.v);document.getElementById('in-fuel').value=S.fuel;
+  document.querySelectorAll('#tankrow button').forEach(x=>x.classList.toggle('on',x===b));render();}));
+document.getElementById('in-fuel').addEventListener('input',()=>{document.querySelectorAll('#tankrow button').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.v)===S.fuel));});
+
+/* presets */
+const PRESETS=[
+  {n:'Performance', d:{elev:4000,pres:29.92,temp:7,rpm:2500,mp:23}},
+  {n:'Normal cruise', d:{elev:6000,pres:29.92,temp:3,rpm:2500,mp:22}},
+  {n:'Economy', d:{elev:8000,pres:29.92,temp:-1,rpm:2400,mp:20}},
+  {n:'Long range', d:{elev:10000,pres:29.92,temp:-5,rpm:2300,mp:18}},
+];
+const pc=document.getElementById('presets');
+PRESETS.forEach(p=>{const b=document.createElement('button');b.className='preset';b.textContent=p.n;
+  b.addEventListener('click',()=>{
+    S.elevU='ft';S.presU='inHg';S.tempU='C';Object.assign(S,p.d);
+    document.querySelectorAll('.toggle[data-unit]').forEach(t=>{const k=t.dataset.unit,def=unitOf(k);t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.u===def));});
+    document.querySelectorAll('#rpmseg button').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.v)===S.rpm));
+    ['elev','pres','temp','mp'].forEach(k=>document.getElementById('in-'+k).value=S[k]);
+    render();
+  });pc.appendChild(b);});
+
+/* init */
+['elev','pres','temp','mp','fuel','res','wind','leg'].forEach(k=>{const el=document.getElementById('in-'+k);if(el)el.value=S[k];});
+render();
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>

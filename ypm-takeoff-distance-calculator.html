@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VH-YPM · Takeoff Distance — Cessna R172K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080b11;
+    --bg-2:#0c111a;
+    --panel:#111824;
+    --panel-2:#0d141f;
+    --inset:#080d15;
+    --edge:#22303f;
+    --edge-soft:#18222f;
+    --text:#eaf1f8;
+    --muted:#8696a8;
+    --faint:#566678;
+    --amber:#ffb340;
+    --amber-d:#e8951f;
+    --green:#37d98a;
+    --cyan:#36c6ff;
+    --red:#ff5470;
+    --violet:#a78bfa;
+    --go:var(--green);
+    --shadow:0 20px 46px -24px rgba(0,0,0,.92);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Saira',sans-serif;color:var(--text);
+    background:
+      radial-gradient(1100px 640px at 84% -10%, rgba(255,179,64,.06), transparent 60%),
+      radial-gradient(900px 600px at 6% 110%, rgba(54,198,255,.05), transparent 55%),
+      linear-gradient(180deg,var(--bg-2),var(--bg) 72%);
+    background-attachment:fixed;min-height:100%;padding:22px;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+    background-image:linear-gradient(rgba(120,150,190,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(120,150,190,.022) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(1200px 820px at 50% 24%,#000 28%,transparent 92%)}
+  .app{max-width:1280px;margin:0 auto;position:relative;z-index:1}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 4px 18px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:48px;height:48px;flex:none;border-radius:12px;background:linear-gradient(160deg,#3a2a0c,#16110a);
+    border:1px solid #5a4416;display:grid;place-items:center;box-shadow:inset 0 0 18px rgba(255,179,64,.16)}
+  .logo svg{width:27px;height:27px}
+  .brand h1{font-family:'Saira Condensed';font-size:23px;font-weight:700;letter-spacing:.06em;line-height:1;text-transform:uppercase}
+  .brand h1 b{color:var(--amber)}
+  .brand p{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+  .tail{font-family:'Spline Sans Mono';font-size:12.5px;font-weight:600;letter-spacing:.1em;padding:9px 15px;border-radius:9px;
+    border:1px solid var(--edge);background:rgba(8,13,21,.7);display:flex;align-items:center;gap:9px;white-space:nowrap}
+  .tail .d{width:8px;height:8px;border-radius:2px;background:var(--amber);box-shadow:0 0 9px var(--amber)}
+  .tail b{color:var(--text);font-weight:700}
+
+  /* ---------- layout ---------- */
+  .layout{display:grid;gap:15px;grid-template-columns:340px minmax(0,1fr) 268px;
+    grid-template-areas:"inputs results wind" "inputs results runway";align-items:start}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--edge);border-radius:16px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .card::after{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,179,64,.35),transparent)}
+  .inputs{grid-area:inputs}.results{grid-area:results;animation-delay:.06s}
+  .wind{grid-area:wind;animation-delay:.1s}.runway{grid-area:runway;animation-delay:.14s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .card-h{display:flex;align-items:center;gap:10px;padding:14px 17px;border-bottom:1px solid var(--edge-soft)}
+  .card-h .tag{font-family:'Saira Condensed';font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card-h .ix{font-family:'Spline Sans Mono';font-size:10.5px;color:var(--faint);margin-left:auto;letter-spacing:.1em}
+  .card-body{padding:15px 17px 18px}
+
+  /* ---------- presets ---------- */
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+  .preset{font-family:'Saira';font-size:11px;letter-spacing:.04em;color:var(--muted);background:var(--inset);
+    border:1px solid var(--edge-soft);padding:7px 11px;border-radius:8px;cursor:pointer;transition:.16s;font-weight:500}
+  .preset:hover{color:var(--text);border-color:var(--edge);background:#0f1825}
+  .preset:active{transform:translateY(1px)}
+
+  /* ---------- fields ---------- */
+  .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+  .field-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .field label{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .field .hint{font-size:10px;color:var(--faint);letter-spacing:.03em;font-family:'Spline Sans Mono'}
+  .control{display:flex;align-items:stretch;gap:7px}
+  .num{flex:1;display:flex;align-items:stretch;background:var(--inset);border:1px solid var(--edge);border-radius:10px;overflow:hidden;transition:.18s}
+  .num:focus-within{border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,179,64,.13)}
+  .num.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,84,112,.14)}
+  .step{width:38px;flex:none;background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;font-family:'Spline Sans Mono';transition:.14s;display:grid;place-items:center}
+  .step:hover{color:var(--text);background:rgba(255,179,64,.07)}
+  .step:active{background:rgba(255,179,64,.14)}
+  .num input{flex:1;width:100%;min-width:0;background:transparent;border:none;outline:none;color:var(--text);
+    font-family:'Spline Sans Mono';font-weight:600;font-size:19px;text-align:center;padding:10px 2px;font-variant-numeric:tabular-nums}
+  .num input::-webkit-outer-spin-button,.num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .num input[type=number]{-moz-appearance:textfield}
+  .toggle{display:flex;flex:none;background:var(--inset);border:1px solid var(--edge);border-radius:10px;overflow:hidden}
+  .toggle button{font-family:'Saira';font-size:11.5px;font-weight:600;letter-spacing:.03em;color:var(--faint);background:transparent;border:none;cursor:pointer;padding:0 11px;min-width:46px;transition:.16s}
+  .toggle button.on{color:#160f02;background:var(--amber);box-shadow:0 0 13px rgba(255,179,64,.34)}
+  .toggle button:not(.on):hover{color:var(--text)}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .seg{display:flex;background:var(--inset);border:1px solid var(--edge);border-radius:10px;overflow:hidden;width:100%}
+  .seg button{flex:1;font-family:'Saira';font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--faint);background:transparent;border:none;cursor:pointer;padding:9px 4px;transition:.15s;text-transform:uppercase}
+  .seg button.on{color:#0a0f16;background:var(--muted)}
+  .seg.amber button.on{background:var(--amber);color:#160f02}
+  .seg button:not(.on):hover{color:var(--text);background:rgba(255,255,255,.03)}
+  .subhdr{font-family:'Saira Condensed';font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin:18px 0 9px;display:flex;align-items:center;gap:9px}
+  .subhdr::after{content:"";flex:1;height:1px;background:var(--edge-soft)}
+
+  /* ---------- wind compass ---------- */
+  .wind .card-body{padding:12px 12px 14px}
+  #compass{width:100%;height:auto;display:block}
+  .wind-read{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--edge-soft);border:1px solid var(--edge-soft);border-radius:11px;overflow:hidden;margin-top:11px}
+  .wr{background:var(--panel);padding:10px 11px}
+  .wr .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .wr .v{font-family:'Spline Sans Mono';font-weight:600;font-size:18px;margin-top:3px;font-variant-numeric:tabular-nums}
+  .wr .v small{font-size:10px;color:var(--muted);font-weight:500;margin-left:2px}
+  .wr .v.hw{color:var(--green)}.wr .v.tw{color:var(--red)}.wr .v.xw{color:var(--amber)}.wr .v.xwbad{color:var(--red)}
+
+  /* ---------- results ---------- */
+  .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--edge-soft);border-bottom:1px solid var(--edge-soft)}
+  .big-cell{background:radial-gradient(360px 150px at 50% 0%,rgba(255,179,64,.05),transparent);padding:18px 20px 16px;text-align:center}
+  .big-cell .lab{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .big-cell .lab i{font-style:normal;color:var(--faint);font-family:'Spline Sans Mono';font-size:9.5px;display:block;margin-top:2px;letter-spacing:.06em}
+  .big-cell .big{font-family:'Spline Sans Mono';font-weight:700;line-height:.95;font-size:clamp(40px,7.2vw,60px);letter-spacing:-.01em;margin:8px 0 0;font-variant-numeric:tabular-nums;transition:color .3s}
+  .big-cell .big .u{font-size:.3em;color:var(--muted);letter-spacing:.04em;margin-left:5px;font-weight:600}
+  .big-cell.ground .big{color:var(--cyan)}
+  .big-cell.total .big{color:var(--amber)}
+  .flash{animation:fl .4s ease}@keyframes fl{0%{transform:scale(1.015)}100%{transform:scale(1)}}
+
+  /* breakdown */
+  .breakdown{padding:14px 18px 4px}
+  .bd-h{font-family:'Saira Condensed';font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+  .bd-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--edge-soft);font-size:13px}
+  .bd-row:last-child{border-bottom:none}
+  .bd-row .lbl{color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .bd-row .lbl b{color:var(--text);font-weight:600}
+  .badge{font-family:'Spline Sans Mono';font-size:8.5px;font-weight:600;letter-spacing:.08em;padding:2px 6px;border-radius:5px;text-transform:uppercase;white-space:nowrap}
+  .badge.poh{color:var(--green);border:1px solid color-mix(in srgb,var(--green) 45%,transparent);background:color-mix(in srgb,var(--green) 12%,transparent)}
+  .badge.adv{color:var(--violet);border:1px solid color-mix(in srgb,var(--violet) 45%,transparent);background:color-mix(in srgb,var(--violet) 12%,transparent)}
+  .bd-row .g,.bd-row .t{font-family:'Spline Sans Mono';font-weight:600;font-size:13px;text-align:right;min-width:62px;font-variant-numeric:tabular-nums;color:var(--text)}
+  .bd-row .delta{color:var(--faint);font-weight:500}
+  .bd-row.final{padding-top:10px;margin-top:3px;border-top:1px solid var(--edge);font-size:14px}
+  .bd-row.final .lbl b{color:var(--amber)}
+  .bd-row.final .g,.bd-row.final .t{color:var(--text);font-size:15px}
+  .bd-cols{display:grid;grid-template-columns:1fr auto auto;gap:10px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding-bottom:6px;border-bottom:1px solid var(--edge-soft);margin-bottom:2px}
+  .bd-cols span:nth-child(2),.bd-cols span:nth-child(3){text-align:right;min-width:62px}
+
+  /* ref strip */
+  .ref{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge-soft);border-top:1px solid var(--edge-soft);margin-top:14px}
+  .ref .c{background:var(--panel);padding:11px 13px}
+  .ref .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .ref .v{font-family:'Spline Sans Mono';font-weight:600;font-size:16px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .ref .v small{font-size:10px;color:var(--muted);font-weight:500}
+
+  /* warnings */
+  .warns{padding:2px 18px 16px;display:grid;gap:7px}
+  .warn{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.45;padding:9px 11px;border-radius:9px}
+  .warn svg{width:15px;height:15px;flex:none;margin-top:1px}
+  .warn.red{background:color-mix(in srgb,var(--red) 11%,transparent);border:1px solid color-mix(in srgb,var(--red) 35%,transparent);color:#ffd0d8}
+  .warn.red svg{color:var(--red)}
+  .warn.amber{background:color-mix(in srgb,var(--amber) 10%,transparent);border:1px solid color-mix(in srgb,var(--amber) 32%,transparent);color:#ffe6c2}
+  .warn.amber svg{color:var(--amber)}
+  .warn.info{background:rgba(54,198,255,.07);border:1px solid color-mix(in srgb,var(--cyan) 28%,transparent);color:#cdedff}
+  .warn.info svg{color:var(--cyan)}
+
+  /* ---------- runway / margin ---------- */
+  .runway .card-body{padding:14px 15px 16px}
+  .margin-status{text-align:center;padding:12px 10px 14px;border-radius:12px;border:1px solid var(--edge);margin-bottom:13px;background:var(--inset);transition:.3s}
+  .margin-status .st{font-family:'Saira Condensed';font-size:18px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .margin-status .pct{font-family:'Spline Sans Mono';font-size:32px;font-weight:700;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+  .margin-status .sub{font-size:11px;color:var(--muted);letter-spacing:.02em}
+  #rwyDiag{width:100%;height:auto;display:block;margin-top:4px}
+  .rwy-cap{font-size:10px;color:var(--faint);text-align:center;margin-top:8px;line-height:1.5;letter-spacing:.02em}
+
+  /* disclaimer */
+  .disclaimer{margin-top:18px;display:flex;gap:13px;align-items:flex-start;padding:15px 18px;border-radius:14px;border:1px solid var(--edge-soft);background:rgba(8,13,21,.5)}
+  .disclaimer svg{width:20px;height:20px;color:var(--amber);flex:none;margin-top:1px}
+  .disclaimer p{font-size:11.5px;color:var(--faint);line-height:1.6}
+  .disclaimer p+p{margin-top:7px}
+  .disclaimer b{color:var(--muted);font-weight:600}
+  .disclaimer .adv-key{color:var(--violet);font-weight:600}
+  .disclaimer .poh-key{color:var(--green);font-weight:600}
+
+  @media (max-width:1040px){
+    .layout{grid-template-columns:1fr 1fr;grid-template-areas:"results results" "inputs wind" "inputs runway"}
+  }
+  @media (max-width:720px){
+    body{padding:13px}
+    .layout{grid-template-columns:1fr;grid-template-areas:"results" "wind" "inputs" "runway"}
+    .res-grid{grid-template-columns:1fr}
+    .ref{grid-template-columns:repeat(2,1fr)}
+    .brand h1{font-size:19px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffb340" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 16.5 22 11 2 5.5l4 5.5z"/><path d="M6 11h8"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Takeoff Distance · <b>R172K</b></h1>
+        <p>Figure 5-4 &middot; Short Field &middot; Flaps 10&deg;</p>
+      </div>
+    </div>
+    <div class="tail"><span class="d"></span>REG&nbsp;<b>VH-YPM</b></div>
+  </header>
+
+  <main class="layout">
+
+    <!-- ============ INPUTS ============ -->
+    <section class="card inputs">
+      <div class="card-h"><span class="tag">Conditions</span><span class="ix">INPUT</span></div>
+      <div class="card-body">
+        <div class="presets" id="presets"></div>
+
+        <div class="field">
+          <div class="field-top"><label>Takeoff Weight</label><span class="hint" id="wHint">max 2550</span></div>
+          <div class="control">
+            <div class="num" data-key="weight"><button class="step" data-act="dec">&minus;</button><input id="in-weight" inputmode="decimal" value="2300"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="weight"><button data-u="lb" class="on">LB</button><button data-u="kg">KG</button></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Field Elevation</label><span class="hint">airport</span></div>
+          <div class="control">
+            <div class="num" data-key="elev"><button class="step" data-act="dec">&minus;</button><input id="in-elev" inputmode="decimal" value="0"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="elev"><button data-u="ft" class="on">FT</button><button data-u="m">M</button></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Altimeter (QNH)</label><span class="hint" id="paHint">PA &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="pres"><button class="step" data-act="dec">&minus;</button><input id="in-pres" inputmode="decimal" value="29.92"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="pres"><button data-u="inHg" class="on">inHg</button><button data-u="hPa">hPa</button></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Temperature (OAT)</label><span class="hint" id="isaHint">ISA &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="temp"><button class="step" data-act="dec">&minus;</button><input id="in-temp" inputmode="decimal" value="15"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="temp"><button data-u="C" class="on">&deg;C</button><button data-u="F">&deg;F</button></div>
+          </div>
+        </div>
+
+        <div class="subhdr">Runway &amp; Wind</div>
+        <div class="field">
+          <div class="field-top"><label>Runway (takeoff dir.)</label><span class="hint" id="rwyHint">RWY &mdash;</span></div>
+          <div class="control">
+            <div class="num" data-key="rwy"><button class="step" data-act="dec">&minus;</button><input id="in-rwy" inputmode="decimal" value="360"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle"><button class="on" style="cursor:default">&deg;M</button></div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><label>Wind From</label></div>
+            <div class="num" data-key="wdir"><button class="step" data-act="dec">&minus;</button><input id="in-wdir" inputmode="decimal" value="350"><button class="step" data-act="inc">+</button></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><label>Wind Speed</label><span class="hint">kt</span></div>
+            <div class="num" data-key="wspd"><button class="step" data-act="dec">&minus;</button><input id="in-wspd" inputmode="decimal" value="10"><button class="step" data-act="inc">+</button></div>
+          </div>
+        </div>
+
+        <div class="subhdr">Surface &amp; Slope</div>
+        <div class="field">
+          <div class="field-top"><label>Surface Type</label></div>
+          <div class="seg" data-seg="surf">
+            <button data-v="paved" class="on">Paved</button><button data-v="grass">Grass</button><button data-v="long">Long grass</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-top"><label>Condition</label></div>
+          <div class="seg amber" data-seg="cond">
+            <button data-v="dry" class="on">Dry</button><button data-v="wet">Wet / rain</button><button data-v="water">Standing water</button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-top"><label>Runway Slope</label><span class="hint">+ up / &minus; down</span></div>
+          <div class="control">
+            <div class="num" data-key="slope"><button class="step" data-act="dec">&minus;</button><input id="in-slope" inputmode="decimal" value="0"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle"><button class="on" style="cursor:default">%</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section class="card results">
+      <div class="res-grid">
+        <div class="big-cell ground">
+          <div class="lab">Ground Roll<i>liftoff</i></div>
+          <div class="big" id="grBig">&mdash;</div>
+        </div>
+        <div class="big-cell total">
+          <div class="lab">Total Distance<i>to clear 50 ft obstacle</i></div>
+          <div class="big" id="totBig">&mdash;</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="bd-h">Calculation Breakdown</div>
+        <div class="bd-cols"><span>Step</span><span>Grnd</span><span>50 ft</span></div>
+        <div id="bdList"></div>
+      </div>
+
+      <div class="ref">
+        <div class="c"><div class="k">Liftoff Speed</div><div class="v" id="vLof">&mdash;</div></div>
+        <div class="c"><div class="k">Speed @ 50 ft</div><div class="v" id="v50">&mdash;</div></div>
+        <div class="c"><div class="k">Pressure Alt</div><div class="v" id="paRef">&mdash;</div></div>
+        <div class="c"><div class="k">Mixture</div><div class="v" id="gph">&mdash;</div></div>
+      </div>
+
+      <div class="warns" id="warns"></div>
+    </section>
+
+    <!-- ============ WIND ============ -->
+    <aside class="card wind">
+      <div class="card-h"><span class="tag">Wind</span><span class="ix">VECTOR</span></div>
+      <div class="card-body">
+        <svg id="compass" viewBox="0 0 240 240" role="img" aria-label="Wind component compass"></svg>
+        <div class="wind-read">
+          <div class="wr"><div class="k" id="hwK">Headwind</div><div class="v hw" id="hwV">&mdash;</div></div>
+          <div class="wr"><div class="k" id="xwK">Crosswind</div><div class="v xw" id="xwV">&mdash;</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ RUNWAY MARGIN ============ -->
+    <aside class="card runway">
+      <div class="card-h"><span class="tag">Runway</span><span class="ix">MARGIN</span></div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:13px">
+          <div class="field-top"><label>Available (TODA)</label><span class="hint">0 = off</span></div>
+          <div class="control">
+            <div class="num" data-key="toda"><button class="step" data-act="dec">&minus;</button><input id="in-toda" inputmode="decimal" value="1500"><button class="step" data-act="inc">+</button></div>
+            <div class="toggle" data-unit="toda"><button data-u="ft" class="on">FT</button><button data-u="m">M</button></div>
+          </div>
+        </div>
+        <div class="margin-status" id="marginBox">
+          <div class="st" id="marginSt">&mdash;</div>
+          <div class="pct" id="marginPct">&mdash;</div>
+          <div class="sub" id="marginSub">enter runway length</div>
+        </div>
+        <svg id="rwyDiag" viewBox="0 0 252 92" role="img" aria-label="Runway usage diagram"></svg>
+        <div class="rwy-cap">Bars show ground roll &amp; 50-ft distance against runway available. Published figures assume a perfect short-field technique — always add a personal margin.</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="disclaimer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+    </svg>
+    <div>
+      <p><b>For planning and training only — not a substitute for the approved AFM/POH.</b> Base figures are interpolated from <b>Figure 5-4 (Takeoff Distance, Short Field)</b> of the Cessna R172K POH and assume its stated conditions: flaps 10&deg;, 2600 RPM full throttle, mixture at placard fuel flow, cowl flap open, paved/level/dry runway, and the short-field technique of Section 4. The <span class="poh-key">POH</span> badge marks the manufacturer's own wind (Note 2) and dry-grass (Note 3) corrections. The <span class="adv-key">ADVISORY</span> badge marks wet/contaminated-surface and slope adjustments, which are <b>not in this POH</b> — they are conservative planning rules of thumb drawn from FAA / Flight Safety Foundation guidance and may differ from your conditions.</p>
+      <p>On takeoff, the dominant wet-runway hazard is not the ground roll itself but the inability to stop if you reject, plus aquaplaning in standing water. Real performance is further affected by gross weight, CG, engine and propeller condition, grass length, surface firmness, obstacles, and pilot technique. Verify every departure against current data and your own minima. <b>The pilot in command is solely responsible for the safe conduct of the flight.</b></p>
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ===================== POH DATA — Figure 5-4 ===================== */
+const PA=[0,1000,2000,3000,4000,5000,6000,7000,8000];
+const TMP=[0,10,20,30,40];
+const G2550=[[715,770,830,895,960],[780,840,905,975,1050],[855,920,995,1070,1150],[935,1010,1090,1175,1265],[1025,1110,1195,1290,1390],[1125,1220,1315,1420,1530],[1240,1340,1450,1565,1690],[1365,1480,1600,1730,1870],[1510,1635,1770,1915,2075]];
+const T2550=[[1225,1315,1410,1510,1625],[1335,1435,1540,1655,1780],[1460,1570,1690,1820,1960],[1600,1725,1860,2005,2165],[1760,1900,2055,2220,2405],[1945,2105,2280,2470,2685],[2155,2340,2540,2765,3015],[2405,2615,2850,3115,3415],[2695,2945,3225,3545,3920]];
+const G2400=[[620,670,720,775,835],[680,730,790,845,910],[740,800,860,925,995],[810,875,945,1015,1095],[890,960,1035,1115,1200],[975,1055,1135,1225,1320],[1070,1160,1250,1360,1455],[1180,1275,1380,1490,1610],[1305,1410,1525,1650,1780]];
+const T2400=[[1070,1145,1225,1315,1410],[1165,1250,1340,1435,1540],[1270,1365,1465,1575,1690],[1390,1495,1605,1730,1860],[1520,1640,1765,1905,2055],[1675,1805,1950,2110,2280],[1850,2000,2165,2345,2540],[2050,2220,2410,2620,2850],[2280,2480,2700,2950,3225]];
+const G2200=[[510,550,590,635,680],[555,600,645,690,740],[605,655,705,755,810],[660,715,770,825,890],[725,780,840,905,975],[795,855,925,995,1070],[870,940,1015,1095,1175],[955,1035,1115,1205,1295],[1055,1140,1230,1330,1430]];
+const T2200=[[880,940,1005,1075,1150],[955,1025,1095,1175,1255],[1040,1115,1195,1280,1370],[1135,1215,1305,1400,1500],[1240,1330,1430,1535,1650],[1355,1460,1570,1690,1820],[1490,1605,1730,1865,2010],[1645,1770,1915,2065,2235],[1815,1965,2125,2300,2495]];
+const W=[2200,2400,2550];
+const G={2200:G2200,2400:G2400,2550:G2550}, T={2200:T2200,2400:T2400,2550:T2550};
+const VSPD={2200:[50,54],2400:[52,56],2550:[54,58]};       // [liftoff, @50ft] KIAS
+const MIXTURE=[[0,16],[2000,15],[4000,14],[6000,13],[8000,12]]; // [PA, GPH]
+const MAX_GROSS=2550, MIN_TBL=2200, DEMO_XWIND=20;
+
+/* surface increment (% of zero-wind ground roll, added to BOTH figures) */
+const SURF={
+  paved:{dry:[0.00,'POH baseline'], wet:[0.15,'Advisory'],  water:[0.30,'Advisory']},
+  grass:{dry:[0.15,'POH Note 3'],   wet:[0.30,'Advisory'],  water:[0.45,'Advisory']},
+  long: {dry:[0.30,'Advisory'],     wet:[0.45,'Advisory'],  water:[0.60,'Advisory']}
+};
+const SURF_LBL={paved:'Paved',grass:'Short grass',long:'Long grass'};
+const COND_LBL={dry:'dry',wet:'wet',water:'standing water'};
+
+/* ISA constants for pressure-altitude reduction */
+const ISA={T0:288.15,L:0.0065,g:9.80665,R:287.053,P0:1013.25,FT:0.3048,INHG:33.8638866667};
+ISA.EXP=ISA.g/(ISA.R*ISA.L);
+
+/* ===================== state ===================== */
+const S={weightU:'lb',elevU:'ft',presU:'inHg',tempU:'C',todaU:'ft',
+  weight:2300,elev:0,pres:29.92,temp:15,rwy:360,wdir:350,wspd:10,slope:0,toda:1500,
+  surf:'paved',cond:'dry'};
+const STEP={weight:{lb:25,kg:10},elev:{ft:100,m:25},pres:{inHg:0.01,hPa:1},temp:{C:1,F:2},
+  rwy:{'':10},wdir:{'':10},wspd:{'':1},slope:{'':0.5},toda:{ft:100,m:25}};
+
+/* ===================== math ===================== */
+const toLb=(v,u)=>u==='kg'?v/0.45359237:v;
+const toM =(v,u)=>u==='ft'?v*ISA.FT:v;
+const toHpa=(v,u)=>u==='inHg'?v*ISA.INHG:v;
+const toC =(v,u)=>u==='F'?(v-32)*5/9:v;
+
+function span(arr,x){
+  if(x<=arr[0])return[0,0,0];
+  if(x>=arr[arr.length-1])return[arr.length-1,arr.length-1,0];
+  for(let i=0;i<arr.length-1;i++)if(x>=arr[i]&&x<=arr[i+1])return[i,i+1,(x-arr[i])/(arr[i+1]-arr[i])];
+}
+function bilin(tbl,pa,t){
+  const[p0,p1,pf]=span(PA,pa),[s0,s1,tf]=span(TMP,t);
+  const a=tbl[p0][s0],b=tbl[p0][s1],c=tbl[p1][s0],d=tbl[p1][s1];
+  const top=a+(b-a)*tf,bot=c+(d-c)*tf;return top+(bot-top)*pf;
+}
+function lookup(weight,pa,t){
+  const wq=Math.min(MAX_GROSS,Math.max(MIN_TBL,weight));
+  const[i0,i1,wf]=span(W,wq),w0=W[i0],w1=W[i1];
+  return{
+    ground:bilin(G[w0],pa,t)+(bilin(G[w1],pa,t)-bilin(G[w0],pa,t))*wf,
+    total :bilin(T[w0],pa,t)+(bilin(T[w1],pa,t)-bilin(T[w0],pa,t))*wf
+  };
+}
+function vspeeds(weight){
+  const wq=Math.min(MAX_GROSS,Math.max(MIN_TBL,weight));
+  const[i0,i1,wf]=span(W,wq);
+  const a=VSPD[W[i0]],b=VSPD[W[i1]];
+  return[Math.round(a[0]+(b[0]-a[0])*wf),Math.round(a[1]+(b[1]-a[1])*wf)];
+}
+function gphAt(pa){const[i0,i1,f]=span(MIXTURE.map(x=>x[0]),pa);return Math.round(MIXTURE[i0][1]+(MIXTURE[i1][1]-MIXTURE[i0][1])*f);}
+function windComp(rwy,wdir,wspd){
+  let off=((wdir-rwy+540)%360)-180;          // [-180,180], + = wind from the right
+  const r=off*Math.PI/180;
+  return{off,head:wspd*Math.cos(r),cross:wspd*Math.sin(r)};
+}
+function pressAlt(elev_m,qnh_hpa){
+  const Pstn=qnh_hpa*Math.pow(1-(ISA.L*elev_m)/ISA.T0,ISA.EXP);
+  return (ISA.T0/ISA.L)*(1-Math.pow(Pstn/ISA.P0,1/ISA.EXP))/ISA.FT;
+}
+const r5=n=>Math.round(n/5)*5;
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+
+/* ===================== compute + render ===================== */
+function render(){
+  /* read + validate */
+  const W_lb=toLb(S.weight,S.weightU);
+  const elev_m=toM(S.elev,S.elevU);
+  const QNH=toHpa(S.pres,S.presU);
+  const OAT=toC(S.temp,S.tempU);
+  const valid=[W_lb,elev_m,QNH,OAT,S.rwy,S.wdir,S.wspd].every(x=>!isNaN(x))&&QNH>0&&S.wspd>=0;
+  document.querySelector('[data-key="pres"]').classList.toggle('bad',isNaN(S.pres)||S.pres<=0);
+  document.querySelector('[data-key="weight"]').classList.toggle('bad',isNaN(S.weight));
+
+  const pa=valid?pressAlt(elev_m,QNH):NaN;
+  const wc=valid?windComp(S.rwy,S.wdir,S.wspd):{off:0,head:0,cross:0};
+
+  /* always render wind compass (independent of full validity) */
+  drawCompass(S.rwy,S.wdir,S.wspd,wc);
+  renderWind(wc);
+
+  if(!valid){
+    ['grBig','totBig'].forEach(id=>document.getElementById(id).innerHTML='&mdash;');
+    document.getElementById('bdList').innerHTML='';
+    document.getElementById('warns').innerHTML='';
+    ['vLof','v50','paRef','gph'].forEach(id=>document.getElementById(id).innerHTML='&mdash;');
+    document.getElementById('paHint').innerHTML='PA &mdash;';
+    drawRunway(NaN,NaN,NaN);
+    setMargin(NaN,NaN);
+    return;
+  }
+
+  /* hints */
+  const isaDev=OAT-(15-ISA.L*pressAlt(elev_m,QNH)*ISA.FT); // dev vs ISA at PA
+  document.getElementById('paHint').innerHTML='PA '+fmt(pa)+' ft';
+  document.getElementById('paRef').innerHTML=fmt(pa)+'<small> ft</small>';
+  const devShown=(S.tempU==='F'?isaDev*9/5:isaDev);
+  document.getElementById('isaHint').innerHTML='ISA '+(isaDev>=0?'+':'−')+Math.abs(devShown).toFixed(0)+'°';
+  document.getElementById('rwyHint').innerHTML='RWY '+rwyDesig(S.rwy);
+  document.getElementById('wHint').innerHTML = W_lb>MAX_GROSS?'over 2550!':'max 2550';
+
+  /* base interpolation (chart values use clamped PA/temp) */
+  const paC=Math.min(8000,Math.max(0,pa)), tC=Math.min(40,Math.max(0,OAT));
+  const base=lookup(W_lb,paC,tC);
+  const g0=base.ground,t0=base.total;
+
+  /* surface (Note 3 / advisory): % of zero-wind ground roll, added to both */
+  const[sp,ssrc]=SURF[S.surf][S.cond];
+  const surfInc=sp*g0;
+  let g=g0+surfInc, t=t0+surfInc;
+
+  /* slope (advisory): ±5% per 1% slope, applied to both */
+  const slopeF=1+0.05*(isNaN(S.slope)?0:S.slope);
+  const gSlope=g*slopeF, tSlope=t*slopeF;
+
+  /* wind (Note 2): headwind −10%/9kt, tailwind +10%/2kt; applied to both */
+  let windF, windPct;
+  if(wc.head>=0){windPct=-0.10*(wc.head/9);} else {windPct=0.10*((-wc.head)/2);}
+  windF=Math.max(0,1+windPct);
+  const gF=gSlope*windF, tF=tSlope*windF;
+
+  /* ---- big readouts ---- */
+  setBig('grBig',r5(gF),'ft');
+  setBig('totBig',r5(tF),'ft');
+
+  /* ---- breakdown ---- */
+  const bd=[];
+  bd.push(row('Base chart (interpolated)','',g0,t0,'',''));
+  if(sp>0) bd.push(row('Surface · '+SURF_LBL[S.surf]+', '+COND_LBL[S.cond],ssrc==='Advisory'?'adv':'poh',g0+surfInc,t0+surfInc,'+'+(sp*100).toFixed(0)+'% grnd',ssrc));
+  if(Math.abs(S.slope)>0.01) bd.push(row('Slope '+(S.slope>0?'+':'')+S.slope+'%','adv',gSlope,tSlope,(slopeF>=1?'+':'')+((slopeF-1)*100).toFixed(0)+'%','Advisory'));
+  const windLbl = wc.head>=0 ? 'Headwind '+wc.head.toFixed(0)+' kt' : 'Tailwind '+(-wc.head).toFixed(0)+' kt';
+  bd.push(row(windLbl,'poh',gF,tF,(windPct>=0?'+':'')+(windPct*100).toFixed(0)+'%','Note 2'));
+  document.getElementById('bdList').innerHTML=bd.join('')+
+    `<div class="bd-row final"><div class="lbl"><b>Corrected distance</b></div><div class="g">${fmt(r5(gF))}</div><div class="t">${fmt(r5(tF))}</div></div>`;
+
+  /* ---- ref strip ---- */
+  const[vlof,v50]=vspeeds(W_lb);
+  document.getElementById('vLof').innerHTML=vlof+'<small> KIAS</small>';
+  document.getElementById('v50').innerHTML=v50+'<small> KIAS</small>';
+  document.getElementById('gph').innerHTML=gphAt(paC)+'<small> GPH</small>';
+
+  /* ---- warnings ---- */
+  buildWarnings({W_lb,pa,OAT,wc,base:tF});
+
+  /* ---- runway margin ---- */
+  const toda_ft=(S.toda>0&&!isNaN(S.toda))?toM(S.toda,S.todaU)/ISA.FT:NaN;
+  drawRunway(r5(gF),r5(tF),toda_ft);
+  setMargin(r5(tF),toda_ft);
+}
+
+function setBig(id,val,unit){
+  const el=document.getElementById(id);
+  el.innerHTML=fmt(val)+'<span class="u">'+unit+'</span>';
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+}
+function row(lbl,badgeClass,g,t,delta,src){
+  const badge=badgeClass?`<span class="badge ${badgeClass}">${src}</span>`:'';
+  const d=delta?`<span class="delta">${delta}</span>`:'';
+  return `<div class="bd-row"><div class="lbl"><b>${lbl}</b>${badge}${d}</div><div class="g">${fmt(g)}</div><div class="t">${fmt(t)}</div></div>`;
+}
+function rwyDesig(hdg){let n=Math.round(((hdg%360)+360)%360/10);if(n===0)n=36;return String(n).padStart(2,'0');}
+function rwyDesigText(hdg){return rwyDesig(hdg);}
+
+/* ---- wind readouts ---- */
+function renderWind(wc){
+  const hwEl=document.getElementById('hwV'),hwK=document.getElementById('hwK');
+  if(wc.head>=0){hwEl.className='v hw';hwK.textContent='Headwind';hwEl.innerHTML=wc.head.toFixed(1)+'<small> kt</small>';}
+  else{hwEl.className='v tw';hwK.textContent='Tailwind';hwEl.innerHTML=(-wc.head).toFixed(1)+'<small> kt</small>';}
+  const xwEl=document.getElementById('xwV'),xwK=document.getElementById('xwK');
+  const xmag=Math.abs(wc.cross),side=wc.cross>0.05?'from R':wc.cross<-0.05?'from L':'';
+  xwEl.className='v '+(xmag>DEMO_XWIND?'xwbad':'xw');
+  xwK.textContent='Crosswind'+(side?' '+side:'');
+  xwEl.innerHTML=xmag.toFixed(1)+'<small> kt</small>';
+}
+
+/* ---- warnings ---- */
+function buildWarnings(d){
+  const w=[];
+  if(d.W_lb>MAX_GROSS) w.push(['red','warn',`Weight exceeds maximum gross of 2,550 lb — figures clamp to 2,550 lb and are <b>not valid</b>.`]);
+  else if(d.W_lb<MIN_TBL) w.push(['info','i',`Weight is below the 2,200 lb chart — figures use 2,200 lb data (conservative; actual will be shorter).`]);
+  if(d.pa>8000) w.push(['red','warn',`Pressure altitude ${fmt(d.pa)} ft is above the 8,000 ft chart limit — extrapolation is unreliable.`]);
+  if(d.OAT>40) w.push(['red','warn',`OAT ${d.OAT.toFixed(0)}°C exceeds the 40°C chart limit — real distance will be <b>longer</b> than shown.`]);
+  else if(d.OAT<0) w.push(['info','i',`OAT below 0°C uses the 0°C column (conservative).`]);
+  if(d.wc.head<0 && (-d.wc.head)>10) w.push(['amber','warn',`Tailwind ${(-d.wc.head).toFixed(0)} kt is beyond POH Note 2 (valid to 10 kt) — figure is an extrapolation.`]);
+  const xmag=Math.abs(d.wc.cross);
+  if(xmag>DEMO_XWIND) w.push(['amber','warn',`Crosswind ${xmag.toFixed(0)} kt exceeds the 20 kt maximum demonstrated value.`]);
+  if(S.cond==='water') w.push(['amber','warn',`Standing water / heavy rain: high aquaplaning risk and greatly reduced stopping ability if you reject. The added drag may prevent acceleration to liftoff.`]);
+  else if(S.cond==='wet') w.push(['info','i',`Wet-surface figure is an advisory planning margin (not POH). Wet pavement mainly lengthens the <i>stop</i>, not the roll.`]);
+  if(S.surf!=='paved') w.push(['info','i',`Grass figures depend heavily on length and firmness; soft or long grass can far exceed these values.`]);
+
+  document.getElementById('warns').innerHTML=w.map(([cls,ic,txt])=>{
+    const icon = ic==='warn'
+      ? '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>'
+      : '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v4h1"/>';
+    return `<div class="warn ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg><span>${txt}</span></div>`;
+  }).join('');
+}
+
+/* ---- margin status ---- */
+function setMargin(tot,toda_ft){
+  const box=document.getElementById('marginBox'),st=document.getElementById('marginSt'),pc=document.getElementById('marginPct'),sub=document.getElementById('marginSub');
+  if(isNaN(tot)||isNaN(toda_ft)){st.textContent='—';pc.textContent='—';sub.textContent='enter runway length';
+    box.style.borderColor='var(--edge)';st.style.color='var(--muted)';pc.style.color='var(--muted)';return;}
+  const used=tot/toda_ft*100, rem=toda_ft-tot;
+  let col,label;
+  if(tot>toda_ft){col='var(--red)';label='Insufficient';}
+  else if(used>85){col='var(--amber)';label='Marginal';}
+  else if(used>65){col='var(--amber)';label='Tight';}
+  else{col='var(--green)';label='Within limits';}
+  box.style.borderColor=col;box.style.background='color-mix(in srgb,'+col+' 9%, var(--inset))';
+  st.style.color=col;pc.style.color=col;
+  st.textContent=label;
+  pc.textContent=used.toFixed(0)+'%';
+  sub.innerHTML = (rem>=0? fmt(rem)+' ft remaining':'short by '+fmt(-rem)+' ft')+' · of '+fmt(toda_ft)+' ft';
+}
+
+/* ===================== SVG: wind compass ===================== */
+function drawCompass(rwy,wdir,wspd,wc){
+  const cx=120,cy=120,R=92;
+  let g='';
+  g+='<defs><radialGradient id="cg" cx="50%" cy="42%" r="70%"><stop offset="0%" stop-color="#13202e"/><stop offset="100%" stop-color="#0a121b"/></radialGradient></defs>';
+  g+=`<circle cx="${cx}" cy="${cy}" r="${R+12}" fill="url(#cg)" stroke="#1d2a3a"/>`;
+  // ticks
+  for(let a=0;a<360;a+=10){
+    const big=a%30===0,rad=(a-90)*Math.PI/180;
+    const r1=R, r2=R-(big?11:6);
+    g+=`<line x1="${cx+r1*Math.cos(rad)}" y1="${cy+r1*Math.sin(rad)}" x2="${cx+r2*Math.cos(rad)}" y2="${cy+r2*Math.sin(rad)}" stroke="#34465a" stroke-width="${big?1.6:1}"/>`;
+  }
+  ['N','E','S','W'].forEach((c,i)=>{const rad=(i*90-90)*Math.PI/180,rr=R-24;
+    g+=`<text x="${cx+rr*Math.cos(rad)}" y="${cy+rr*Math.sin(rad)+4}" text-anchor="middle" font-family="Saira" font-size="12" font-weight="700" fill="#7d8ea0">${c}</text>`;});
+
+  // runway strip (points toward rwy heading); drawn through center
+  const rrad=(rwy-90)*Math.PI/180, half=R-16, wRwy=15;
+  const dx=Math.cos(rrad),dy=Math.sin(rrad), px=-dy,py=dx;
+  const corners=[[cx-dx*half+px*wRwy,cy-dy*half+py*wRwy],[cx+dx*half+px*wRwy,cy+dy*half+py*wRwy],
+                 [cx+dx*half-px*wRwy,cy+dy*half-py*wRwy],[cx-dx*half-px*wRwy,cy-dy*half-py*wRwy]];
+  g+=`<polygon points="${corners.map(c=>c[0].toFixed(1)+','+c[1].toFixed(1)).join(' ')}" fill="#1a2532" stroke="#37475a" stroke-width="1"/>`;
+  // centreline dashes
+  g+=`<line x1="${cx-dx*half}" y1="${cy-dy*half}" x2="${cx+dx*half}" y2="${cy+dy*half}" stroke="#566678" stroke-width="1.4" stroke-dasharray="5 5"/>`;
+  // runway number at departure end (toward heading)
+  const nx=cx+dx*(half-9), ny=cy+dy*(half-9);
+  g+=`<text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle" font-family="Spline Sans Mono" font-size="12" font-weight="700" fill="#aebccb" transform="rotate(${rwy},${nx},${ny})">${rwyDesig(rwy)}</text>`;
+
+  // wind arrow: points the way the wind blows (from wdir toward wdir+180)
+  if(wspd>0){
+    const toRad=(wdir+180-90)*Math.PI/180;
+    const ar=R-4, tail=cx+(-Math.cos(toRad))*ar, tailY=cy+(-Math.sin(toRad))*ar; // from edge
+    const tipX=cx+Math.cos(toRad)*(ar*0.46), tipY=cy+Math.sin(toRad)*(ar*0.46);
+    const startX=cx-Math.cos(toRad)*ar, startY=cy-Math.sin(toRad)*ar;
+    const col = wc.head>=0 ? '#37d98a' : '#ff5470';
+    g+=`<line x1="${startX.toFixed(1)}" y1="${startY.toFixed(1)}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${col}" stroke-width="3.4" stroke-linecap="round"/>`;
+    // arrowhead at tip
+    const ah=11,a1=toRad+2.5,a2=toRad-2.5;
+    g+=`<polygon points="${tipX.toFixed(1)},${tipY.toFixed(1)} ${(tipX-ah*Math.cos(a1)).toFixed(1)},${(tipY-ah*Math.sin(a1)).toFixed(1)} ${(tipX-ah*Math.cos(a2)).toFixed(1)},${(tipY-ah*Math.sin(a2)).toFixed(1)}" fill="${col}"/>`;
+    // wind label
+    g+=`<text x="${startX.toFixed(1)}" y="${(startY+ (startY<cy?-7:14)).toFixed(1)}" text-anchor="middle" font-family="Spline Sans Mono" font-size="10.5" font-weight="600" fill="${col}">${Math.round(wdir).toString().padStart(3,'0')}°/${Math.round(wspd)}</text>`;
+  }
+  g+=`<circle cx="${cx}" cy="${cy}" r="3.4" fill="#ffb340"/>`;
+  document.getElementById('compass').innerHTML=g;
+}
+
+/* ===================== SVG: runway usage ===================== */
+function drawRunway(gr,tot,toda){
+  const W=252,H=92,x0=6,x1=246,y=30,h=26;
+  let g='';
+  const have=!isNaN(toda)&&toda>0;
+  const scaleMax=have?Math.max(toda,tot||0):Math.max(tot||1,1);
+  const px=v=>x0+(x1-x0)*Math.min(1,v/scaleMax);
+  // runway bed
+  g+=`<rect x="${x0}" y="${y}" width="${x1-x0}" height="${h}" rx="4" fill="#11202b" stroke="#37475a"/>`;
+  for(let i=1;i<8;i++){const xx=x0+(x1-x0)*i/8;g+=`<line x1="${xx}" y1="${y+h/2-3}" x2="${xx}" y2="${y+h/2+3}" stroke="#3a4d61" stroke-width="2"/>`;}
+  if(have){
+    // available runway end marker
+  }
+  if(!isNaN(gr)){
+    g+=`<rect x="${x0}" y="${y}" width="${(px(gr)-x0).toFixed(1)}" height="${h}" rx="4" fill="rgba(54,198,255,.30)"/>`;
+    g+=`<line x1="${px(gr).toFixed(1)}" y1="${y-6}" x2="${px(gr).toFixed(1)}" y2="${y+h+6}" stroke="#36c6ff" stroke-width="2"/>`;
+    g+=`<text x="${px(gr).toFixed(1)}" y="${y-9}" text-anchor="middle" font-family="Spline Sans Mono" font-size="9" fill="#36c6ff">${fmt(gr)}</text>`;
+  }
+  if(!isNaN(tot)){
+    g+=`<line x1="${px(tot).toFixed(1)}" y1="${y-6}" x2="${px(tot).toFixed(1)}" y2="${y+h+6}" stroke="#ffb340" stroke-width="2"/>`;
+    g+=`<text x="${px(tot).toFixed(1)}" y="${y+h+17}" text-anchor="middle" font-family="Spline Sans Mono" font-size="9" fill="#ffb340">${fmt(tot)} (50ft)</text>`;
+  }
+  if(have){
+    const xe=px(toda);
+    g+=`<line x1="${xe.toFixed(1)}" y1="${y-3}" x2="${xe.toFixed(1)}" y2="${y+h+3}" stroke="#8696a8" stroke-width="2" stroke-dasharray="3 3"/>`;
+    if(!isNaN(tot)&&tot>toda){ // overrun shading
+      g+=`<rect x="${xe.toFixed(1)}" y="${y}" width="${(Math.min(x1,px(tot))-xe).toFixed(1)}" height="${h}" fill="rgba(255,84,112,.25)"/>`;
+    }
+  }
+  document.getElementById('rwyDiag').innerHTML=g;
+}
+
+/* ===================== input wiring ===================== */
+function syncInputs(){['weight','elev','pres','temp','rwy','wdir','wspd','slope','toda'].forEach(k=>{const el=document.getElementById('in-'+k);if(el)el.value=S[k];});}
+function unitOf(key){return key==='weight'?S.weightU:key==='elev'?S.elevU:key==='pres'?S.presU:key==='temp'?S.tempU:key==='toda'?S.todaU:'';}
+function decimals(key){return (key==='pres'&&S.presU==='inHg')?2 : key==='slope'?1 : 0;}
+
+function bindNum(key){
+  const input=document.getElementById('in-'+key);if(!input)return;
+  input.addEventListener('input',()=>{S[key]=parseFloat(input.value);render();});
+  const box=document.querySelector(`[data-key="${key}"]`);
+  box.querySelectorAll('.step').forEach(btn=>btn.addEventListener('click',()=>{
+    const u=unitOf(key),d=STEP[key][u]!==undefined?STEP[key][u]:STEP[key][''];
+    let cur=parseFloat(input.value);if(isNaN(cur))cur=0;
+    cur+=(btn.dataset.act==='inc'?d:-d);
+    if(key==='wspd'||key==='wdir'||key==='rwy'||key==='toda') cur=Math.max(0,cur);
+    if(key==='wdir') cur=((cur%360)+360)%360;
+    if(key==='rwy'){ if(cur<=0)cur=360; if(cur>360)cur=cur-360; }
+    cur=Math.round(cur/d)*d;
+    const dec=decimals(key);S[key]=+cur.toFixed(dec);input.value=S[key];render();
+  }));
+}
+['weight','elev','pres','temp','rwy','wdir','wspd','slope','toda'].forEach(bindNum);
+
+document.querySelectorAll('.toggle[data-unit]').forEach(t=>{
+  const key=t.dataset.unit;
+  t.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    const nu=btn.dataset.u,cu=unitOf(key);if(nu===cu)return;
+    let v=S[key];
+    if(!isNaN(v)){
+      if(key==='weight')v=(nu==='kg')?v*0.45359237:v/0.45359237;
+      if(key==='elev'||key==='toda')v=(nu==='m')?v*ISA.FT:v/ISA.FT;
+      if(key==='pres')v=(nu==='hPa')?v*ISA.INHG:v/ISA.INHG;
+      if(key==='temp')v=(nu==='F')?v*9/5+32:(v-32)*5/9;
+      const dec=(key==='pres'&&nu==='inHg')?2:(key==='temp')?1:0;
+      S[key]=+v.toFixed(dec);
+    }
+    if(key==='weight')S.weightU=nu;if(key==='elev')S.elevU=nu;if(key==='pres')S.presU=nu;if(key==='temp')S.tempU=nu;if(key==='toda')S.todaU=nu;
+    t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.u===nu));
+    document.getElementById('in-'+key).value=S[key];render();
+  }));
+});
+
+document.querySelectorAll('.seg[data-seg]').forEach(seg=>{
+  const key=seg.dataset.seg;
+  seg.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    S[key]=btn.dataset.v;
+    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn));
+    render();
+  }));
+});
+
+/* ---- presets ---- */
+const PRESETS=[
+  {n:'POH sample', d:{weightU:'lb',elevU:'ft',presU:'inHg',tempU:'C',weight:2500,elev:1500,pres:29.92,temp:28,rwy:360,wdir:360,wspd:12,slope:0,surf:'paved',cond:'dry',toda:3500,todaU:'ft'}},
+  {n:'Max gross · ISA SL', d:{weight:2550,elev:0,pres:29.92,temp:15,rwy:360,wdir:360,wspd:0,slope:0,surf:'paved',cond:'dry',toda:2000}},
+  {n:'Hot & high', d:{weight:2400,elev:5000,pres:29.92,temp:35,rwy:360,wdir:340,wspd:8,slope:0,surf:'paved',cond:'dry',toda:3500}},
+  {n:'Wet grass strip', d:{weight:2200,elev:800,pres:29.92,temp:20,rwy:90,wdir:60,wspd:10,slope:1,surf:'grass',cond:'wet',toda:2000}},
+];
+const pc=document.getElementById('presets');
+PRESETS.forEach(p=>{const b=document.createElement('button');b.className='preset';b.textContent=p.n;
+  b.addEventListener('click',()=>{
+    S.weightU='lb';S.elevU='ft';S.presU='inHg';S.tempU='C';S.todaU='ft';
+    Object.assign(S,p.d);
+    // reset unit toggles to defaults shown
+    document.querySelectorAll('.toggle[data-unit]').forEach(t=>{const k=t.dataset.unit;const def=unitOf(k);t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.u===def));});
+    document.querySelectorAll('.seg[data-seg]').forEach(seg=>{const k=seg.dataset.seg;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===S[k]));});
+    syncInputs();render();
+  });pc.appendChild(b);});
+
+/* init */
+syncInputs();render();
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>
